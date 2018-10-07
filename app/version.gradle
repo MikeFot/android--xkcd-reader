@@ -1,0 +1,16 @@
+/*
+ * Developed by Michail Fotiadis on 07/10/18 18:03.
+ * Last modified 28/06/18 11:30.
+ * Copyright (c) 2018. All rights reserved.
+ *
+ *
+ */
+
+final int versionMajor = 0
+final int versionMinor = 0
+final int versionPatch = 1
+
+ext {
+    androidVersionCode = 1
+    semanticVersion = "${versionMajor}.${versionMinor}.${versionPatch}"
+}

@@ -1,0 +1,26 @@
+<!--
+  ~ Developed by Michail Fotiadis on 07/10/18 18:03.
+  ~ Last modified 06/10/18 13:55.
+  ~ Copyright (c) 2018. All rights reserved.
+  ~
+  ~
+  -->
+
+<resources>
+    <string name="app_name">XKCD Reader</string>
+    <string name="ui_error_communication">There has been an issue communicating with the server. Please try again later.</string>
+    <string name="ui_error_internal_server_error">There has been an issue communicating with the server</string>
+    <string name="ui_error_unexpected">Something has gone wrong. Please try again.</string>
+    <string name="ui_error_action_retry">Retry</string>
+    <string name="ui_error_request_failed">Something has gone wrong. Please check your input and try again.</string>
+    <string name="ui_error_no_network">There\'s a problem with the network. Please check your connection.</string>
+    <string name="ui_error_invalid_request">Something has gone wrong. Please check your input and try again.</string>
+    <string name="ui_error_not_found">We are sorry but we could not find the requested item.</string>
+    <string name="ui_error_authentication">We are sorry but there has been an issue authenticating your account.</string>
+    <string name="ui_error_authorisation">We are sorry but you are not authorised to view this content.</string>
+    <string name="ui_error_bad_request">Something has gone wrong. Please check your input and try again.</string>
+    <string name="ui_error_payload_too_large">The file you are trying to upload is too large.</string>
+    <string name="ui_error_no_permission">We are sorry but you don\'t have permission to perform this action.</string>
+    <string name="ct_swipe_left_arrow">Swipe Left Arrow</string>
+    <string name="ct_swipe_right_arrow">Swipe Right Arrow</string>
+</resources>
