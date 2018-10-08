@@ -1,13 +1,6 @@
-<!--
-  ~ Developed by Michail Fotiadis on 07/10/18 18:03.
-  ~ Last modified 06/10/18 13:55.
-  ~ Copyright (c) 2018. All rights reserved.
-  ~
-  ~
-  -->
-
 <resources>
     <string name="app_name">XKCD Reader</string>
+
     <string name="ui_error_communication">There has been an issue communicating with the server. Please try again later.</string>
     <string name="ui_error_internal_server_error">There has been an issue communicating with the server</string>
     <string name="ui_error_unexpected">Something has gone wrong. Please try again.</string>
@@ -21,6 +14,20 @@
     <string name="ui_error_bad_request">Something has gone wrong. Please check your input and try again.</string>
     <string name="ui_error_payload_too_large">The file you are trying to upload is too large.</string>
     <string name="ui_error_no_permission">We are sorry but you don\'t have permission to perform this action.</string>
+
     <string name="ct_swipe_left_arrow">Swipe Left Arrow</string>
     <string name="ct_swipe_right_arrow">Swipe Right Arrow</string>
+    <string name="ct_comic_strip_image">Comic Strip Image</string>
+
+    <string name="menu_title_search">Search</string>
+    <string name="menu_title_refresh">Refresh</string>
+    <string name="comic_strip_info">"#%1$s - %2$s</string>
+
+    <string name="message_reset_data">Getting the latest comic strip…</string>
+    <string name="message_all_caught_up">All caught up!</string>
+    <string name="message_page_not_found">We are sorry but we could not find the page you are looking for</string>
+
+    <string name="dialog_search_title">Enter a comic ID</string>
+    <string name="dialog_search_hint">1 - %1$s</string>
+
 </resources>

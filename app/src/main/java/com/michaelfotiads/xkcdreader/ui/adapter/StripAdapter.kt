@@ -1,9 +1,7 @@
 /*
- * Developed by Michail Fotiadis on 07/10/18 18:40.
- * Last modified 07/10/18 18:40.
+ * Developed by Michail Fotiadis on 08/10/18 14:35.
+ * Last modified 08/10/18 14:34.
  * Copyright (c) 2018. All rights reserved.
- *
- *
  */
 
 package com.michaelfotiads.xkcdreader.ui.adapter
@@ -38,6 +36,11 @@ class StripAdapter(context: Context) : ArrayAdapter<UiComicStrip>(context, 0) {
         getItem(position)?.let {
             holder.title.text = it.title
             holder.subtitle.text = it.altText
+            holder.info.text =
+                    context.getString(
+                            R.string.comic_strip_info,
+                            it.number.toString(),
+                            it.displayDate)
             Glide.with(context).load(it.imageLink).into(holder.image)
         }
         return taggedContentView!!
@@ -45,7 +48,8 @@ class StripAdapter(context: Context) : ArrayAdapter<UiComicStrip>(context, 0) {
 
     inner class ViewHolder(view: View) {
         val title: TextView = view.findViewById(R.id.title_text)
-        var subtitle: TextView = view.findViewById(R.id.subtitle_text)
-        var image: ImageView = view.findViewById(R.id.image_view)
+        val subtitle: TextView = view.findViewById(R.id.subtitle_text)
+        val info: TextView = view.findViewById(R.id.info_text)
+        val image: ImageView = view.findViewById(R.id.image_view)
     }
 }

@@ -1,9 +1,7 @@
 /*
- * Developed by Michail Fotiadis on 07/10/18 18:03.
- * Last modified 07/10/18 18:03.
+ * Developed by Michail Fotiadis on 08/10/18 14:35.
+ * Last modified 08/10/18 14:34.
  * Copyright (c) 2018. All rights reserved.
- *
- *
  */
 
 package com.michaelfotiads.xkcdreader.net.loader.error.mapper
@@ -66,8 +64,8 @@ class RetrofitErrorMapper : ErrorMapper<Throwable> {
 
     @Suppress("ComplexMethod")
     private fun getErrorKindFromException(
-        retrofitException: RetrofitException,
-        warnings: HashMap<String, String>
+            retrofitException: RetrofitException,
+            @Suppress("UNUSED_PARAMETER") warnings: HashMap<String, String>
     ): DataSourceErrorKind {
         return when (retrofitException.kind) {
             RetrofitException.Kind.HTTP -> {

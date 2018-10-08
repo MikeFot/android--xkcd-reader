@@ -1,19 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-  ~ Developed by Michail Fotiadis on 07/10/18 18:03.
-  ~ Last modified 07/10/18 16:20.
-  ~ Copyright (c) 2018. All rights reserved.
-  ~
-  ~
-  -->
-
 <androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-
     tools:context=".ui.MainActivity">
 
     <com.yuyakaido.android.cardstackview.CardStackView
@@ -22,8 +13,8 @@
         android:layout_height="match_parent"
         android:background="@color/grey_300"
         app:elevationEnabled="true"
-        app:leftOverlay="@layout/left_overlay"
-        app:rightOverlay="@layout/right_overlay"
+        app:leftOverlay="@layout/card_overlay_left"
+        app:rightOverlay="@layout/card_overlay_right"
         app:scaleDiff="0.02"
         app:visibleCount="4"
         app:stackFrom="top"

@@ -1,9 +1,7 @@
 /*
- * Developed by Michail Fotiadis on 07/10/18 18:03.
- * Last modified 07/10/18 18:03.
+ * Developed by Michail Fotiadis on 08/10/18 14:35.
+ * Last modified 08/10/18 14:34.
  * Copyright (c) 2018. All rights reserved.
- *
- *
  */
 
 package com.michaelfotiads.xkcdreader.di
@@ -13,6 +11,7 @@ import android.content.Context
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.michaelfotiads.xkcdreader.BuildConfig
+import com.michaelfotiads.xkcdreader.data.DataStore
 import dagger.Module
 import dagger.Provides
 import io.reactivex.schedulers.Schedulers
@@ -46,4 +45,7 @@ class AppModule {
 
     @Provides
     internal fun providesExecutionScheduler() = Schedulers.io()
+
+    @Provides
+    internal fun providesDataStore(context: Context) = DataStore(context)
 }

@@ -1,16 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-  ~ Developed by Michail Fotiadis on 07/10/18 19:30.
-  ~ Last modified 07/10/18 19:30.
-  ~ Copyright (c) 2018. All rights reserved.
-  ~
-  ~
-  -->
-
 <resources>
-    <dimen name="arrow_width">64dp</dimen>
-    <dimen name="arrow_height">64dp</dimen>
+    <dimen name="arrow_width">128dp</dimen>
+    <dimen name="arrow_height">128dp</dimen>
     <dimen name="margin_8dp">8dp</dimen>
     <dimen name="margin_16dp">16dp</dimen>
-
+    <dimen name="padding_8dp">8dp</dimen>
+    <dimen name="padding_16dp">16dp</dimen>
+    <dimen name="text_size_title">16sp</dimen>
+    <dimen name="text_size_regular">14sp</dimen>
+    <dimen name="card_corner_radius">4dp</dimen>
+    <dimen name="card_elevation">2dp</dimen>
 </resources>

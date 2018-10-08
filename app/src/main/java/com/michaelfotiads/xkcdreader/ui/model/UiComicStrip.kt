@@ -1,9 +1,7 @@
 /*
- * Developed by Michail Fotiadis on 07/10/18 18:19.
- * Last modified 07/10/18 18:19.
+ * Developed by Michail Fotiadis on 08/10/18 14:35.
+ * Last modified 08/10/18 14:34.
  * Copyright (c) 2018. All rights reserved.
- *
- *
  */
 
 package com.michaelfotiads.xkcdreader.ui.model
@@ -12,13 +10,15 @@ import android.os.Parcel
 import android.os.Parcelable
 
 data class UiComicStrip(
-    val number: Int,
-    val imageLink: String,
-    val title: String,
-    val altText: String
+        val number: Int,
+        val imageLink: String,
+        val title: String,
+        val altText: String,
+        val displayDate: String
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
             parcel.readInt(),
+            parcel.readString() ?: "",
             parcel.readString() ?: "",
             parcel.readString() ?: "",
             parcel.readString() ?: "")
@@ -28,6 +28,7 @@ data class UiComicStrip(
         parcel.writeString(imageLink)
         parcel.writeString(title)
         parcel.writeString(altText)
+        parcel.writeString(displayDate)
     }
 
     override fun describeContents(): Int {

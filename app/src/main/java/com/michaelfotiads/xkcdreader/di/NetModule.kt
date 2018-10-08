@@ -1,9 +1,7 @@
 /*
- * Developed by Michail Fotiadis on 07/10/18 18:03.
- * Last modified 07/10/18 18:03.
+ * Developed by Michail Fotiadis on 08/10/18 14:35.
+ * Last modified 08/10/18 14:34.
  * Copyright (c) 2018. All rights reserved.
- *
- *
  */
 
 package com.michaelfotiads.xkcdreader.di
@@ -18,6 +16,7 @@ import com.michaelfotiads.xkcdreader.net.resolver.NetworkResolver
 import dagger.Module
 import dagger.Provides
 import io.reactivex.Scheduler
+import okhttp3.Cache
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -30,7 +29,16 @@ class NetModule {
 
     @Provides
     @Singleton
-    internal fun providesOkHttp(isDebugEnabled: Boolean): OkHttpClient {
+    internal fun providesCache(context: Context): Cache {
+        return Cache(context.cacheDir, 10 * 1024 * 1024)
+    }
+
+    @Provides
+    @Singleton
+    internal fun providesOkHttpClient(
+            cache: Cache,
+            isDebugEnabled: Boolean
+    ): OkHttpClient {
         val okHttpBuilder = OkHttpClient().newBuilder()
         val loggingInterceptor = HttpLoggingInterceptor()
         val level = when {
@@ -39,6 +47,7 @@ class NetModule {
         }
         loggingInterceptor.level = level
         okHttpBuilder.addInterceptor(loggingInterceptor)
+        okHttpBuilder.cache(cache)
         return okHttpBuilder.build()
     }
 

@@ -1,9 +1,7 @@
 /*
- * Developed by Michail Fotiadis on 07/10/18 18:03.
- * Last modified 07/10/18 18:03.
+ * Developed by Michail Fotiadis on 08/10/18 14:35.
+ * Last modified 08/10/18 14:34.
  * Copyright (c) 2018. All rights reserved.
- *
- *
  */
 
 package com.michaelfotiads.xkcdreader.net.loader
@@ -17,7 +15,6 @@ import com.michaelfotiads.xkcdreader.net.loader.error.DataSourceErrorKind
 import com.michaelfotiads.xkcdreader.net.loader.error.mapper.RetrofitErrorMapper
 import com.michaelfotiads.xkcdreader.net.resolver.NetworkResolver
 import io.reactivex.Scheduler
-import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 import retrofit2.Retrofit
 
@@ -28,8 +25,8 @@ class NetworkLoader(
     private val scheduler: Scheduler
 ) {
 
-    private val compositeDisposable = CompositeDisposable()
     private var latestComicCall: Disposable? = null
+    private var specificComicCall: Disposable? = null
     private val comicApi = ComicApi(retrofit)
 
     fun loadLatestComic(): LiveData<RepoResult<ComicStrip>> {
@@ -41,9 +38,6 @@ class NetworkLoader(
             latestComicCall = comicApi
                     .getLatest()
                     .subscribeOn(scheduler)
-                    .doOnSubscribe {
-                        compositeDisposable.add(it)
-                    }
                     .subscribe(
                             { liveData.postValue(RepoResult(it)) },
                             { liveData.postValue(RepoResult(dataSourceError = errorMapper.convert(it))) }
@@ -59,31 +53,28 @@ class NetworkLoader(
 
         val liveData = MutableLiveData<RepoResult<ComicStrip>>()
 
+        specificComicCall?.dispose()
         if (networkResolver.isConnected()) {
-            compositeDisposable.add(
-                    comicApi
-                            .getForId(comicId = comicId.toString())
-                            .subscribeOn(scheduler)
-                            .doOnSubscribe {
-                                compositeDisposable.add(it)
+            specificComicCall = comicApi
+                    .getForId(comicId = comicId.toString())
+                    .subscribeOn(scheduler)
+                    .subscribe(
+                            { liveData.postValue(RepoResult(it)) },
+                            {
+                                liveData.postValue(RepoResult(dataSourceError = errorMapper.convert(
+                                        it)))
                             }
-                            .subscribe(
-                                    { liveData.postValue(RepoResult(it)) },
-                                    {
-                                        liveData.postValue(RepoResult(
-                                                dataSourceError = errorMapper.convert(
-                                                        it)))
-                                    }
-                            )
-            )
+                    )
         } else {
             liveData.postValue(RepoResult(dataSourceError = DataSourceError("",
                                                                             DataSourceErrorKind.NO_NETWORK)))
         }
+
         return liveData
     }
 
     fun clearAllJobs() {
-        compositeDisposable.clear()
+        latestComicCall?.dispose()
+        specificComicCall?.dispose()
     }
 }
