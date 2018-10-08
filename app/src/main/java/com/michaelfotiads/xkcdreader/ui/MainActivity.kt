@@ -161,7 +161,7 @@ class MainActivity : AppCompatActivity(), HasSupportFragmentInjector {
     private fun onItemSwiped(direction: SwipeDirection?) {
         Timber.d("On Card Swiped $direction and we are now at top index ${card_stack_view.topIndex}")
         // remove the item so it won't refresh with the adapter
-        card_stack_view.post { adapter.remove(adapter.getItem(card_stack_view.topIndex - 1)) }
+        adapter.remove(adapter.getItem(card_stack_view.topIndex - 1))
         if (adapter.count == 0) {
             Toasty.success(this@MainActivity, getString(R.string.message_all_caught_up)).show()
         } else {
@@ -181,20 +181,16 @@ class MainActivity : AppCompatActivity(), HasSupportFragmentInjector {
     private fun onResetAdapter(shouldReset: Boolean) {
         if (shouldReset) {
             Timber.d("Resetting adapter data")
-            card_stack_view.post {
-                adapter.clear()
-                adapter.notifyDataSetChanged()
-            }
+            adapter.clear()
+            adapter.notifyDataSetChanged()
         }
     }
 
     private fun onResult(comicStrip: UiComicStrip) {
         Timber.d("Loaded item with ID ${comicStrip.number}")
-        card_stack_view.post {
-            adapter.add(comicStrip)
-            Timber.d("Adapter has ${adapter.count} items")
-            viewModel.loadAdditionalData(adapter.count)
-        }
+        adapter.add(comicStrip)
+        Timber.d("Adapter has ${adapter.count} items")
+        viewModel.loadAdditionalData(adapter.count)
     }
 
     private fun onError(uiError: UiError?) {
