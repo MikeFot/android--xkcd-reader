@@ -21,6 +21,8 @@
 
     <string name="menu_title_search">Search</string>
     <string name="menu_title_refresh">Refresh</string>
+    <string name="menu_title_about">About</string>
+
     <string name="comic_strip_info">"#%1$s - %2$s</string>
 
     <string name="message_reset_data">Getting the latest comic strip…</string>
@@ -29,5 +31,8 @@
 
     <string name="dialog_search_title">Enter a comic ID</string>
     <string name="dialog_search_hint">1 - %1$s</string>
+    <string name="info_title">About the app</string>
+    <string name="info_message">"This is a fan made app by Michael Fotiadis.
+        \nAll rights reserved 2018"</string>
 
 </resources>

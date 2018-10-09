@@ -10,8 +10,7 @@
         android:layout_width="@dimen/arrow_width"
         android:layout_height="@dimen/arrow_height"
         android:layout_gravity="center"
-        android:alpha="0.8"
         android:contentDescription="@string/ct_swipe_left_arrow"
         android:tint="@color/accent"
-        app:srcCompat="@drawable/ic_arrow_back_24dp"/>
+        app:srcCompat="@drawable/ic_undo_black_24dp"/>
 </FrameLayout>

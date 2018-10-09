@@ -7,9 +7,9 @@
 package com.michaelfotiads.xkcdreader.ui
 
 import android.graphics.PorterDuff
-import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.text.InputType
+import android.view.Gravity
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
@@ -24,6 +24,7 @@ import com.michaelfotiads.xkcdreader.ui.model.UiComicStrip
 import com.michaelfotiads.xkcdreader.ui.viewmodel.MainViewModel
 import com.michaelfotiads.xkcdreader.ui.viewmodel.MainViewModelFactory
 import com.stfalcon.frescoimageviewer.ImageViewer
+import com.yarolegovich.lovelydialog.LovelyInfoDialog
 import com.yarolegovich.lovelydialog.LovelyTextInputDialog
 import com.yuyakaido.android.cardstackview.CardStackView
 import com.yuyakaido.android.cardstackview.SwipeDirection
@@ -33,6 +34,7 @@ import dagger.android.DispatchingAndroidInjector
 import dagger.android.support.HasSupportFragmentInjector
 import es.dmoral.toasty.Toasty
 import kotlinx.android.synthetic.main.activity_main.card_stack_view
+import kotlinx.android.synthetic.main.activity_main.view_flipper
 import timber.log.Timber
 import java.util.UUID
 import javax.inject.Inject
@@ -48,6 +50,11 @@ class MainActivity : AppCompatActivity(), HasSupportFragmentInjector {
 
     private lateinit var viewModel: MainViewModel
     private lateinit var adapter: StripAdapter
+
+    companion object {
+        private const val INDEX_PROGRESS = 0
+        private const val INDEX_CONTENT = 1
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         AndroidInjection.inject(this)
@@ -94,35 +101,49 @@ class MainActivity : AppCompatActivity(), HasSupportFragmentInjector {
                 viewModel.showSearch()
                 true
             }
+            R.id.menu_item_about   -> {
+                showAboutDialog()
+                true
+            }
             else                   -> super.onOptionsItemSelected(item)
         }
     }
 
-    private fun showSearch(maxStripIndex: Int) {
-        val icon: Drawable = ContextCompat.getDrawable(this, R.drawable.ic_search_black_24dp)!!
-        icon.mutate()
-        icon.setColorFilter(ContextCompat.getColor(this@MainActivity, R.color.white),
-                            PorterDuff.Mode.SRC_ATOP)
+    private fun showAboutDialog() {
+        LovelyInfoDialog(this)
+                .setTopColorRes(R.color.primary_dark)
+                .setIcon(R.drawable.ic_info_outline_black_24dp)
+                .setIconTintColor(ContextCompat.getColor(this, R.color.white))
+                .setMessageGravity(Gravity.CENTER_HORIZONTAL)
+                .setTitle(R.string.info_title)
+                .setMessage(R.string.info_message)
+                .show()
+    }
 
+    private fun showSearch(maxStripIndex: Int) {
         LovelyTextInputDialog(this)
                 .setTopColorRes(R.color.primary_dark)
-                .setIcon(icon)
+                .setIcon(R.drawable.ic_search_black_24dp)
+                .setIconTintColor(ContextCompat.getColor(this, R.color.white))
                 .setMessage(getString(R.string.dialog_search_title))
                 .setHint(getString(R.string.dialog_search_hint, maxStripIndex.toString()))
                 .setInputType(InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_SIGNED)
-                .setConfirmButton(android.R.string.ok) {
-                    it.isNotBlank().run {
-                        val stripNumber = it.toInt()
-                        if (stripNumber in 1..maxStripIndex) {
-                            viewModel.setSearchParameter(stripNumber)
-                        } else {
-                            Toasty.error(
-                                    this@MainActivity,
-                                    getString(R.string.message_page_not_found)).show()
-                        }
-                    }
-                }
+                .setConfirmButtonColor(ContextCompat.getColor(this, R.color.secondary_text))
+                .setConfirmButton(android.R.string.ok) { processSearchQuery(it, maxStripIndex) }
                 .show()
+    }
+
+    private fun processSearchQuery(it: String?, maxStripIndex: Int) {
+        if (!it.isNullOrBlank()) {
+            val stripNumber = it!!.toInt()
+            if (stripNumber in 1..maxStripIndex) {
+                viewModel.setSearchParameter(stripNumber)
+            } else {
+                Toasty.error(
+                        this@MainActivity,
+                        getString(R.string.message_page_not_found)).show()
+            }
+        }
     }
 
     private fun resetAndLoadData() {
@@ -183,11 +204,13 @@ class MainActivity : AppCompatActivity(), HasSupportFragmentInjector {
             Timber.d("Resetting adapter data")
             adapter.clear()
             adapter.notifyDataSetChanged()
+            view_flipper.displayedChild = INDEX_PROGRESS
         }
     }
 
     private fun onResult(comicStrip: UiComicStrip) {
         Timber.d("Loaded item with ID ${comicStrip.number}")
+        view_flipper.displayedChild = INDEX_CONTENT
         adapter.add(comicStrip)
         Timber.d("Adapter has ${adapter.count} items")
         viewModel.loadAdditionalData(adapter.count)
@@ -195,6 +218,7 @@ class MainActivity : AppCompatActivity(), HasSupportFragmentInjector {
 
     private fun onError(uiError: UiError?) {
         uiError?.let {
+            view_flipper.displayedChild = INDEX_CONTENT
             Toasty.error(this, getString(uiError.messageResId)).show()
             viewModel.clearError()
         }
