@@ -13,6 +13,7 @@ import android.view.Gravity
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ShareCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -60,7 +61,7 @@ class MainActivity : AppCompatActivity(), HasSupportFragmentInjector {
         AndroidInjection.inject(this)
         super.onCreate(savedInstanceState)
         viewModel = ViewModelProviders.of(this, viewModelFactory)
-                .get(uniqueId, MainViewModel::class.java)
+            .get(uniqueId, MainViewModel::class.java)
         setContentView(R.layout.activity_main)
 
         initialiseCardAdapter()
@@ -105,32 +106,51 @@ class MainActivity : AppCompatActivity(), HasSupportFragmentInjector {
                 showAboutDialog()
                 true
             }
+            R.id.menu_item_share   -> {
+                shareItem()
+                true
+            }
             else                   -> super.onOptionsItemSelected(item)
         }
     }
 
     private fun showAboutDialog() {
         LovelyInfoDialog(this)
-                .setTopColorRes(R.color.primary_dark)
-                .setIcon(R.drawable.ic_info_outline_black_24dp)
-                .setIconTintColor(ContextCompat.getColor(this, R.color.white))
-                .setMessageGravity(Gravity.CENTER_HORIZONTAL)
-                .setTitle(R.string.info_title)
-                .setMessage(R.string.info_message)
-                .show()
+            .setTopColorRes(R.color.primary_dark)
+            .setIcon(R.drawable.ic_info_outline_black_24dp)
+            .setIconTintColor(ContextCompat.getColor(this, R.color.white))
+            .setMessageGravity(Gravity.CENTER_HORIZONTAL)
+            .setTitle(R.string.info_title)
+            .setMessage(R.string.info_message)
+            .show()
     }
 
     private fun showSearch(maxStripIndex: Int) {
         LovelyTextInputDialog(this)
-                .setTopColorRes(R.color.primary_dark)
-                .setIcon(R.drawable.ic_search_black_24dp)
-                .setIconTintColor(ContextCompat.getColor(this, R.color.white))
-                .setMessage(getString(R.string.dialog_search_title))
-                .setHint(getString(R.string.dialog_search_hint, maxStripIndex.toString()))
-                .setInputType(InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_SIGNED)
-                .setConfirmButtonColor(ContextCompat.getColor(this, R.color.secondary_text))
-                .setConfirmButton(android.R.string.ok) { processSearchQuery(it, maxStripIndex) }
-                .show()
+            .setTopColorRes(R.color.primary_dark)
+            .setIcon(R.drawable.ic_search_black_24dp)
+            .setIconTintColor(ContextCompat.getColor(this, R.color.white))
+            .setMessage(getString(R.string.dialog_search_title))
+            .setHint(getString(R.string.dialog_search_hint, maxStripIndex.toString()))
+            .setInputType(InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_SIGNED)
+            .setConfirmButtonColor(ContextCompat.getColor(this, R.color.secondary_text))
+            .setConfirmButton(android.R.string.ok) { processSearchQuery(it, maxStripIndex) }
+            .show()
+    }
+
+    private fun shareItem() {
+        if (adapter.count > 0) {
+            adapter.getItem(0)?.let {
+
+                val shareText = getString(R.string.share_info, it.title, it.imageLink)
+
+                ShareCompat.IntentBuilder.from(this)
+                    .setType("text/plain")
+                    .setChooserTitle(getString(R.string.share_title))
+                    .setText(shareText)
+                    .startChooser()
+            }
+        }
     }
 
     private fun processSearchQuery(it: String?, maxStripIndex: Int) {
@@ -140,8 +160,9 @@ class MainActivity : AppCompatActivity(), HasSupportFragmentInjector {
                 viewModel.setSearchParameter(stripNumber)
             } else {
                 Toasty.error(
-                        this@MainActivity,
-                        getString(R.string.message_page_not_found)).show()
+                    this@MainActivity,
+                    getString(R.string.message_page_not_found)
+                ).show()
             }
         }
     }
@@ -195,8 +216,9 @@ class MainActivity : AppCompatActivity(), HasSupportFragmentInjector {
     private fun onItemClicked(item: UiComicStrip) {
         // use Fresco!
         ImageViewer.Builder<String>(this, listOf(item.imageLink))
-                .setImageMargin(this, R.dimen.margin_16dp)
-                .show()
+            .hideStatusBar(false)
+            .setImageMargin(this, R.dimen.margin_16dp)
+            .show()
     }
 
     private fun onResetAdapter(shouldReset: Boolean) {
