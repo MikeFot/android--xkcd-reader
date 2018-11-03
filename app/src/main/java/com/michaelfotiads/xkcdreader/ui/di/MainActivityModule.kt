@@ -34,11 +34,11 @@ class MainActivityModule {
 
     @Provides
     internal fun providesMainViewModelFactory(
-            networkLoader: NetworkLoader,
-            @Named(NAME_IMAGE_THRESHOLD) imageCountThreshold: Int,
-            dataStore: DataStore,
-            uiComicStripMapper: UiComicStripMapper,
-            uiErrorMapper: UiErrorMapper
+        networkLoader: NetworkLoader,
+        @Named(NAME_IMAGE_THRESHOLD) imageCountThreshold: Int,
+        dataStore: DataStore,
+        uiComicStripMapper: UiComicStripMapper,
+        uiErrorMapper: UiErrorMapper
     ) = MainViewModelFactory(
             networkLoader,
             imageCountThreshold,

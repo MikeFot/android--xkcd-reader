@@ -98,19 +98,19 @@ class MainActivity : AppCompatActivity(), HasSupportFragmentInjector {
                 resetAndLoadData()
                 true
             }
-            R.id.menu_item_search  -> {
+            R.id.menu_item_search -> {
                 viewModel.showSearch()
                 true
             }
-            R.id.menu_item_about   -> {
+            R.id.menu_item_about -> {
                 showAboutDialog()
                 true
             }
-            R.id.menu_item_share   -> {
+            R.id.menu_item_share -> {
                 shareItem()
                 true
             }
-            else                   -> super.onOptionsItemSelected(item)
+            else -> super.onOptionsItemSelected(item)
         }
     }
 

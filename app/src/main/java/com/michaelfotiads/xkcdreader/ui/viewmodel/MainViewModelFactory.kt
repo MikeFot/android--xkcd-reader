@@ -14,11 +14,11 @@ import com.michaelfotiads.xkcdreader.ui.error.UiErrorMapper
 import com.michaelfotiads.xkcdreader.ui.model.UiComicStripMapper
 
 class MainViewModelFactory constructor(
-        private val networkLoader: NetworkLoader,
-        private val imageCountThreshold: Int,
-        private val dataStore: DataStore,
-        private val uiComicStripMapper: UiComicStripMapper,
-        private val uiErrorMapper: UiErrorMapper
+    private val networkLoader: NetworkLoader,
+    private val imageCountThreshold: Int,
+    private val dataStore: DataStore,
+    private val uiComicStripMapper: UiComicStripMapper,
+    private val uiErrorMapper: UiErrorMapper
 ) : ViewModelProvider.Factory {
 
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {

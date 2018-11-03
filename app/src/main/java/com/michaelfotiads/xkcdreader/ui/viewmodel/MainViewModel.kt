@@ -18,11 +18,11 @@ import com.michaelfotiads.xkcdreader.ui.model.UiComicStripMapper
 import timber.log.Timber
 
 class MainViewModel(
-        private val networkLoader: NetworkLoader,
-        private val imageCountThreshold: Int,
-        private val dataStore: DataStore,
-        private val uiComicStripMapper: UiComicStripMapper,
-        private val uiErrorMapper: UiErrorMapper
+    private val networkLoader: NetworkLoader,
+    private val imageCountThreshold: Int,
+    private val dataStore: DataStore,
+    private val uiComicStripMapper: UiComicStripMapper,
+    private val uiErrorMapper: UiErrorMapper
 ) : ViewModel() {
 
     val resultsData = MediatorLiveData<UiComicStrip>()
@@ -37,7 +37,7 @@ class MainViewModel(
             Timber.d("Loading initial data")
             resultsData.addSource(networkLoader.loadLatestComic()) { result ->
                 when {
-                    result.hasError()   -> errorData.postValue(uiErrorMapper.convert(result.dataSourceError!!))
+                    result.hasError() -> errorData.postValue(uiErrorMapper.convert(result.dataSourceError!!))
                     result.hasPayload() -> {
                         val uiItem = uiComicStripMapper.convert(result.payload!!)
                         dataStore.currentStrip = uiItem.number
@@ -60,7 +60,7 @@ class MainViewModel(
         Timber.d("Loading specific item $comicStripId")
         resultsData.addSource(networkLoader.loadComicWithId(comicStripId)) { result ->
             when {
-                result.hasError()   -> errorData.postValue(uiErrorMapper.convert(result.dataSourceError!!))
+                result.hasError() -> errorData.postValue(uiErrorMapper.convert(result.dataSourceError!!))
                 result.hasPayload() -> {
                     val uiItem = uiComicStripMapper.convert(result.payload!!)
                     if (uiItem.number > dataStore.maxStripIndex) {
@@ -82,7 +82,7 @@ class MainViewModel(
             Timber.d("Loading additional data for $currentStrip next item $nextItem and count $visibleItems")
             resultsData.addSource(networkLoader.loadComicWithId(nextItem)) { result ->
                 when {
-                    result.hasError()   -> errorData.postValue(uiErrorMapper.convert(result.dataSourceError!!))
+                    result.hasError() -> errorData.postValue(uiErrorMapper.convert(result.dataSourceError!!))
                     result.hasPayload() -> {
                         val uiItem = uiComicStripMapper.convert(result.payload!!)
                         if (uiItem.number > dataStore.maxStripIndex) {

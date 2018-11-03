@@ -64,8 +64,8 @@ class RetrofitErrorMapper : ErrorMapper<Throwable> {
 
     @Suppress("ComplexMethod")
     private fun getErrorKindFromException(
-            retrofitException: RetrofitException,
-            @Suppress("UNUSED_PARAMETER") warnings: HashMap<String, String>
+        retrofitException: RetrofitException,
+        @Suppress("UNUSED_PARAMETER") warnings: HashMap<String, String>
     ): DataSourceErrorKind {
         return when (retrofitException.kind) {
             RetrofitException.Kind.HTTP -> {
