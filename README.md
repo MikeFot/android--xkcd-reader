@@ -3,7 +3,7 @@ Fan made [XKCD](https://xkcd.com/) comic reader using the official [JSON interfa
 
 ## Media
 
-![swipe](media/swipe.gif|width=100 "Swiping images")
+![swipe](media/swipe.gif "Swiping images")
 
 ![search](media/search.gif "Searching for a comic")
 
