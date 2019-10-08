@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">XKCD Reader</string>
+    <string name="app_name">Daily XKCD</string>
 
     <string name="ui_error_communication">There has been an issue communicating with the server. Please try again later.</string>
     <string name="ui_error_internal_server_error">There has been an issue communicating with the server</string>
@@ -24,7 +24,13 @@
     <string name="menu_title_share">Share</string>
     <string name="menu_title_about">About</string>
 
-    <string name="comic_strip_info">"#%1$s - %2$s</string>
+    <string name="menu_bar_comics">Comics</string>
+    <string name="menu_bar_favourites">Favourites</string>
+
+    <string name="comic_strip_info">"#%1$s - %2$s\n%3$s"</string>
+    <string name="comic_strip_display_date">"%1$s/%2$s/%3$s"</string>
+    <string name="comic_strip_web_link">"https://xkcd.com/%1$d/"</string>
+
     <string name="share_title">Share this Comic</string>
     <string name="share_info">"Hey! Check out this XKCD comic: %1$s - %2$s</string>
 
@@ -36,7 +42,7 @@
     <string name="dialog_search_hint">1 - %1$s</string>
     <string name="info_title">About the app</string>
     <string name="info_message">"This is a fan made app by Michael Fotiadis.
-        \nAll rights reserved 2018"</string>
-
-
+        \nNot endorsed by or affiliated with XKCD.
+        \nAll rights reserved 2018, 2019"</string>
+    <string name="ct_icon_favourite">Favourite Button</string>
 </resources>

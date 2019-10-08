@@ -7,31 +7,34 @@
     android:layout_height="match_parent"
     tools:context=".ui.MainActivity">
 
-    <ViewFlipper
-        android:id="@+id/view_flipper"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <ProgressBar
-            android:layout_width="wrap_content"
+        <com.michaelfotiads.xkcdreader.ui.view.NonSwipeableViewPager
+            android:id="@+id/view_pager"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toTopOf="@+id/bottom_navigation_view"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/bottom_navigation_view"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:indeterminate="true"/>
+            app:backgroundTint="@color/primary"
+            app:itemBackground="@color/primary"
+            app:itemIconTint="@drawable/selector_navigation_bar"
+            app:itemTextColor="@drawable/selector_navigation_bar"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:menu="@menu/menu_bottom"/>
 
-        <com.yuyakaido.android.cardstackview.CardStackView
-            android:id="@+id/card_stack_view"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@color/grey_300"
-            app:elevationEnabled="true"
-            app:leftOverlay="@layout/card_overlay_left"
-            app:rightOverlay="@layout/card_overlay_right"
-            app:scaleDiff="0.02"
-            app:stackFrom="top"
-            app:translationDiff="8"
-            app:visibleCount="4"/>
 
-    </ViewFlipper>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

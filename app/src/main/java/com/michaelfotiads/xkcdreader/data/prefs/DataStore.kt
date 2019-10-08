@@ -1,10 +1,10 @@
 /*
- * Developed by Michail Fotiadis on 08/10/18 15:36.
- * Last modified 08/10/18 15:36.
- * Copyright (c) 2018. All rights reserved.
+ * Developed by Michail Fotiadis.
+ * Copyright (c) 2018.
+ * All rights reserved.
  */
 
-package com.michaelfotiads.xkcdreader.data
+package com.michaelfotiads.xkcdreader.data.prefs
 
 import android.content.Context
 import com.chibatching.kotpref.KotprefModel

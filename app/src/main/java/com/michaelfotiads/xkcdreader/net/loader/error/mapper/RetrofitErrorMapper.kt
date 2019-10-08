@@ -1,7 +1,7 @@
 /*
- * Developed by Michail Fotiadis on 08/10/18 14:35.
- * Last modified 08/10/18 14:34.
- * Copyright (c) 2018. All rights reserved.
+ * Developed by Michail Fotiadis.
+ * Copyright (c) 2018.
+ * All rights reserved.
  */
 
 package com.michaelfotiads.xkcdreader.net.loader.error.mapper
@@ -12,22 +12,25 @@ import com.michaelfotiads.xkcdreader.net.error.RetrofitException
 import com.michaelfotiads.xkcdreader.net.loader.error.DataSourceError
 import com.michaelfotiads.xkcdreader.net.loader.error.DataSourceErrorKind
 import com.michaelfotiads.xkcdreader.net.loader.error.ErrorMapper
+import javax.inject.Inject
 
-class RetrofitErrorMapper : ErrorMapper<Throwable> {
+class RetrofitErrorMapper @Inject constructor() : ErrorMapper<Throwable> {
 
     @Suppress("ComplexMethod", "NestedBlockDepth")
-    override fun convert(error: Throwable?): DataSourceError {
+    override fun convert(
+        error: Throwable?
+    ): DataSourceError {
 
         val dataSourceError: DataSourceError
         val warnings = HashMap<String, String>()
         val errorMessage: String?
 
         when (error) {
-            null -> dataSourceError =
-                    DataSourceError(DataSourceErrorKind.UNEXPECTED.toString(),
-                                    DataSourceErrorKind.UNEXPECTED)
+            null -> dataSourceError = DataSourceError(
+                DataSourceErrorKind.UNEXPECTED.toString(), DataSourceErrorKind.UNEXPECTED
+            )
             !is RetrofitException -> dataSourceError =
-                    DataSourceError(error.message, DataSourceErrorKind.UNEXPECTED)
+                DataSourceError(error.message, DataSourceErrorKind.UNEXPECTED)
             else -> {
                 val retrofitException: RetrofitException = error
 
@@ -52,7 +55,7 @@ class RetrofitErrorMapper : ErrorMapper<Throwable> {
                 }
 
                 val kind: DataSourceErrorKind =
-                        getErrorKindFromException(retrofitException, warnings)
+                    getErrorKindFromException(retrofitException, warnings)
                 dataSourceError = DataSourceError(errorMessage, kind)
             }
         }
@@ -65,7 +68,8 @@ class RetrofitErrorMapper : ErrorMapper<Throwable> {
     @Suppress("ComplexMethod")
     private fun getErrorKindFromException(
         retrofitException: RetrofitException,
-        @Suppress("UNUSED_PARAMETER") warnings: HashMap<String, String>
+        @Suppress("UNUSED_PARAMETER")
+        warnings: HashMap<String, String>
     ): DataSourceErrorKind {
         return when (retrofitException.kind) {
             RetrofitException.Kind.HTTP -> {
@@ -78,9 +82,9 @@ class RetrofitErrorMapper : ErrorMapper<Throwable> {
                     CODE_404 -> DataSourceErrorKind.NOT_FOUND
                     CODE_423 -> DataSourceErrorKind.AUTHENTICATION
                     CODE_413 -> DataSourceErrorKind.PAYLOAD_TOO_LARGE
-                    in CODE_400..(CODE_500 - 1) -> DataSourceErrorKind.REQUEST_FAILED
-                    in CODE_300..(CODE_400 - 1) -> DataSourceErrorKind.NOT_FOUND
-                    in CODE_500..(CODE_600 - 1) -> DataSourceErrorKind.INTERNAL_SERVER_ERROR
+                    in CODE_400 until CODE_500 -> DataSourceErrorKind.REQUEST_FAILED
+                    in CODE_300 until CODE_400 -> DataSourceErrorKind.NOT_FOUND
+                    in CODE_500 until CODE_600 -> DataSourceErrorKind.INTERNAL_SERVER_ERROR
                     else -> DataSourceErrorKind.UNEXPECTED
                 }
             }

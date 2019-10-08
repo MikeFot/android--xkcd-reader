@@ -1,7 +1,7 @@
 /*
- * Developed by Michail Fotiadis on 08/10/18 14:35.
- * Last modified 08/10/18 14:34.
- * Copyright (c) 2018. All rights reserved.
+ * Developed by Michail Fotiadis.
+ * Copyright (c) 2018.
+ * All rights reserved.
  */
 
 package com.michaelfotiads.xkcdreader.ui.viewmodel
@@ -9,16 +9,17 @@ package com.michaelfotiads.xkcdreader.ui.viewmodel
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.michaelfotiads.xkcdreader.data.DataStore
-import com.michaelfotiads.xkcdreader.net.loader.NetworkLoader
+import com.michaelfotiads.xkcdreader.data.prefs.DataStore
+import com.michaelfotiads.xkcdreader.net.loader.Loader
 import com.michaelfotiads.xkcdreader.ui.error.UiError
 import com.michaelfotiads.xkcdreader.ui.error.UiErrorMapper
+import com.michaelfotiads.xkcdreader.ui.model.AppDialog
 import com.michaelfotiads.xkcdreader.ui.model.UiComicStrip
 import com.michaelfotiads.xkcdreader.ui.model.UiComicStripMapper
 import timber.log.Timber
 
 class MainViewModel(
-    private val networkLoader: NetworkLoader,
+    private val loader: Loader,
     private val imageCountThreshold: Int,
     private val dataStore: DataStore,
     private val uiComicStripMapper: UiComicStripMapper,
@@ -26,16 +27,28 @@ class MainViewModel(
 ) : ViewModel() {
 
     val resultsData = MediatorLiveData<UiComicStrip>()
+    val favouritesData = MediatorLiveData<List<UiComicStrip>>()
     val errorData = MutableLiveData<UiError>()
-    val searchData = MutableLiveData<Int>()
+    val dialogData = MutableLiveData<AppDialog>()
     val resetAdapterData = MutableLiveData<Boolean>()
+
+    init {
+
+        favouritesData.addSource(loader.getFavourites()) { entities ->
+            if (entities != null) {
+                favouritesData.postValue(uiComicStripMapper.convert(entities))
+            } else {
+                favouritesData.postValue(listOf())
+            }
+        }
+    }
 
     fun loadInitialData() {
 
         val currentStrip = dataStore.currentStrip
         if (currentStrip == 0) {
             Timber.d("Loading initial data")
-            resultsData.addSource(networkLoader.loadLatestComic()) { result ->
+            resultsData.addSource(loader.loadLatestComic()) { result ->
                 when {
                     result.hasError() -> errorData.postValue(uiErrorMapper.convert(result.dataSourceError!!))
                     result.hasPayload() -> {
@@ -58,7 +71,7 @@ class MainViewModel(
 
     fun loadSpecificItem(comicStripId: Int) {
         Timber.d("Loading specific item $comicStripId")
-        resultsData.addSource(networkLoader.loadComicWithId(comicStripId)) { result ->
+        resultsData.addSource(loader.loadComicWithId(comicStripId)) { result ->
             when {
                 result.hasError() -> errorData.postValue(uiErrorMapper.convert(result.dataSourceError!!))
                 result.hasPayload() -> {
@@ -80,7 +93,7 @@ class MainViewModel(
 
         if (nextItem != currentStrip && nextItem > 0 && visibleItems in 0 until imageCountThreshold) {
             Timber.d("Loading additional data for $currentStrip next item $nextItem and count $visibleItems")
-            resultsData.addSource(networkLoader.loadComicWithId(nextItem)) { result ->
+            resultsData.addSource(loader.loadComicWithId(nextItem)) { result ->
                 when {
                     result.hasError() -> errorData.postValue(uiErrorMapper.convert(result.dataSourceError!!))
                     result.hasPayload() -> {
@@ -101,7 +114,7 @@ class MainViewModel(
     fun showSearch() {
         dataStore.maxStripIndex.run {
             if (this > 0) {
-                searchData.postValue(this)
+                showSearchDialog(this)
             }
         }
     }
@@ -122,15 +135,27 @@ class MainViewModel(
         dataStore.currentStrip = dataStore.currentStrip - 1
     }
 
+    fun showSearchDialog(id: Int) {
+        dialogData.postValue(AppDialog.Search(id))
+    }
+
+    fun showAboutDialog() {
+        dialogData.postValue(AppDialog.About)
+    }
+
     fun clearError() {
         errorData.value = null
         Timber.d("Error cleared")
     }
 
     override fun onCleared() {
-        networkLoader.clearAllJobs()
+        loader.clearAllJobs()
         dataStore.currentStrip = 0
         Timber.d("Clearing ViewModel")
         super.onCleared()
+    }
+
+    fun toggleFavourite(id: Int, isFavourite: Boolean) {
+        loader.toggleFavourite(id, isFavourite)
     }
 }

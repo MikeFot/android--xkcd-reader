@@ -1,14 +1,16 @@
 /*
- * Developed by Michail Fotiadis on 08/10/18 14:35.
- * Last modified 08/10/18 14:34.
- * Copyright (c) 2018. All rights reserved.
+ * Developed by Michail Fotiadis.
+ * Copyright (c) 2018.
+ * All rights reserved.
  */
 
 package com.michaelfotiads.xkcdreader.ui.di
 
-import com.michaelfotiads.xkcdreader.data.DataStore
-import com.michaelfotiads.xkcdreader.net.loader.NetworkLoader
+import com.michaelfotiads.xkcdreader.data.prefs.DataStore
+import com.michaelfotiads.xkcdreader.net.loader.Loader
+import com.michaelfotiads.xkcdreader.ui.MainActivity
 import com.michaelfotiads.xkcdreader.ui.error.UiErrorMapper
+import com.michaelfotiads.xkcdreader.ui.intent.IntentDispatcher
 import com.michaelfotiads.xkcdreader.ui.model.UiComicStripMapper
 import com.michaelfotiads.xkcdreader.ui.viewmodel.MainViewModelFactory
 import dagger.Module
@@ -16,33 +18,34 @@ import dagger.Provides
 import javax.inject.Named
 
 @Module
-class MainActivityModule {
+internal class MainActivityModule {
 
     companion object {
         const val NAME_IMAGE_THRESHOLD = "image-count-threshold"
     }
 
     @Provides
-    internal fun providesUiErrorMapper() = UiErrorMapper()
-
-    @Provides
-    internal fun providesUiComicStripMapper() = UiComicStripMapper()
+    fun providesResources(mainActivity: MainActivity) = mainActivity.resources
 
     @Provides
     @Named(NAME_IMAGE_THRESHOLD)
-    internal fun providesImageCountThreshold() = 6
+    fun providesImageCountThreshold() = 6
 
     @Provides
-    internal fun providesMainViewModelFactory(
-        networkLoader: NetworkLoader,
+    fun providesIntentDispatcher(mainActivity: MainActivity) = IntentDispatcher(mainActivity)
+
+    @Provides
+    fun providesMainViewModelFactory(
+        networkLoader: Loader,
         @Named(NAME_IMAGE_THRESHOLD) imageCountThreshold: Int,
         dataStore: DataStore,
         uiComicStripMapper: UiComicStripMapper,
         uiErrorMapper: UiErrorMapper
     ) = MainViewModelFactory(
-            networkLoader,
-            imageCountThreshold,
-            dataStore,
-            uiComicStripMapper,
-            uiErrorMapper)
+        networkLoader,
+        imageCountThreshold,
+        dataStore,
+        uiComicStripMapper,
+        uiErrorMapper
+    )
 }

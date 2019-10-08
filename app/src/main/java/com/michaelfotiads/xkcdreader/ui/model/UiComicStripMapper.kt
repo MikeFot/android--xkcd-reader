@@ -1,27 +1,55 @@
 /*
- * Developed by Michail Fotiadis on 08/10/18 14:35.
- * Last modified 08/10/18 14:34.
- * Copyright (c) 2018. All rights reserved.
+ * Developed by Michail Fotiadis.
+ * Copyright (c) 2018.
+ * All rights reserved.
  */
 
 package com.michaelfotiads.xkcdreader.ui.model
 
-import com.michaelfotiads.xkcdreader.net.api.model.ComicStrip
+import android.content.res.Resources
+import com.michaelfotiads.xkcdreader.R
+import com.michaelfotiads.xkcdreader.data.db.entity.ComicEntity
+import javax.inject.Inject
 
-class UiComicStripMapper {
+class UiComicStripMapper @Inject constructor(private val resources: Resources) {
 
-    fun convert(comicStrip: ComicStrip): UiComicStrip {
+    companion object {
+        private const val PADDING_START_LENGTH = 2
+        private const val PADDING_CHAR = '0'
+    }
 
-        val day = comicStrip.day.padStart(2, '0')
-        val month = comicStrip.month.padStart(2, '0')
-        val year = comicStrip.year
+    fun convert(comicEntities: List<ComicEntity>): List<UiComicStrip> {
 
-        val displayDate = "$day/$month/$year"
+        val comicStrips = mutableListOf<UiComicStrip>()
+        comicEntities.forEach {
+            comicStrips.add(convert(it))
+        }
+        return comicStrips
+    }
 
-        return UiComicStrip(number = comicStrip.num,
-                            imageLink = comicStrip.img,
-                            title = comicStrip.title,
-                            altText = comicStrip.alt,
-                            displayDate = displayDate)
+    fun convert(comicEntity: ComicEntity): UiComicStrip {
+
+        val day = comicEntity.day.padStart(PADDING_START_LENGTH, PADDING_CHAR)
+        val month = comicEntity.month.padStart(PADDING_START_LENGTH, PADDING_CHAR)
+        val year = comicEntity.year
+
+        val displayDate = resources.getString(R.string.comic_strip_display_date, day, month, year)
+        val webLink = resources.getString(R.string.comic_strip_web_link, comicEntity.num)
+        val subtitle = resources.getString(
+            R.string.comic_strip_info,
+            comicEntity.num.toString(),
+            displayDate,
+            webLink
+        )
+
+        return UiComicStrip(
+            number = comicEntity.num,
+            imageLink = comicEntity.img,
+            shareLink = webLink,
+            title = comicEntity.title,
+            altText = comicEntity.alt,
+            subtitle = subtitle,
+            isFavourite = comicEntity.isFavourite
+        )
     }
 }

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="FavouriteImageView">
+        <attr name="iconOn" format="integer"/>
+        <attr name="iconOff" format="integer"/>
+        <attr name="iconTint" format="color"/>
+    </declare-styleable>
+
+</resources>
