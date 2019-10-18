@@ -7,29 +7,36 @@
 package com.michaelfotiads.xkcdreader.ui.fragment.comics
 
 import android.content.Context
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffColorFilter
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.paging.PagedList
 import com.michaelfotiads.xkcdreader.R
-import com.michaelfotiads.xkcdreader.ui.adapter.ComicStripAdapter
+import com.michaelfotiads.xkcdreader.ui.dialog.DialogFactory
 import com.michaelfotiads.xkcdreader.ui.error.UiError
+import com.michaelfotiads.xkcdreader.ui.fragment.comics.adapter.ComicStripAdapter
+import com.michaelfotiads.xkcdreader.ui.fragment.comics.model.ComicAction
+import com.michaelfotiads.xkcdreader.ui.fragment.comics.viewmodel.ComicsViewModel
+import com.michaelfotiads.xkcdreader.ui.fragment.comics.viewmodel.ComicsViewModelFactory
+import com.michaelfotiads.xkcdreader.ui.intent.IntentDispatcher
+import com.michaelfotiads.xkcdreader.ui.model.AppDialog
 import com.michaelfotiads.xkcdreader.ui.model.UiComicStrip
-import com.michaelfotiads.xkcdreader.ui.viewmodel.MainViewModel
-import com.michaelfotiads.xkcdreader.ui.viewmodel.MainViewModelFactory
 import com.stfalcon.frescoimageviewer.ImageViewer
-import com.yuyakaido.android.cardstackview.CardStackView
-import com.yuyakaido.android.cardstackview.SwipeDirection
+import com.yuyakaido.android.cardstackview.CardStackLayoutManager
+import com.yuyakaido.android.cardstackview.CardStackListener
+import com.yuyakaido.android.cardstackview.Direction
+import com.yuyakaido.android.cardstackview.StackFrom
 import dagger.android.support.AndroidSupportInjection
 import es.dmoral.toasty.Toasty
-import javax.inject.Inject
 import kotlinx.android.synthetic.main.fragment_comics.*
-import timber.log.Timber
+import javax.inject.Inject
 
-class ComicsFragment : Fragment() {
+internal class ComicsFragment : Fragment() {
 
     companion object {
         private const val INDEX_PROGRESS = 0
@@ -40,21 +47,88 @@ class ComicsFragment : Fragment() {
     }
 
     @Inject
-    lateinit var viewModelFactory: MainViewModelFactory
+    lateinit var viewModelFactory: ComicsViewModelFactory
+    @Inject
+    lateinit var intentDispatcher: IntentDispatcher
+    @Inject
+    lateinit var dialogFactory: DialogFactory
 
-    private val viewModel: MainViewModel by lazy {
-        ViewModelProviders.of(requireActivity(), viewModelFactory).get(MainViewModel::class.java)
+    private val viewModel: ComicsViewModel by lazy {
+        ViewModelProviders.of(this, viewModelFactory).get(ComicsViewModel::class.java)
     }
-    private val adapter: ComicStripAdapter by lazy {
-        ComicStripAdapter(requireContext())
+    private val comicStripAdapter: ComicStripAdapter by lazy {
+        ComicStripAdapter()
+    }
+    private val comicStripLayoutManager by lazy {
+        CardStackLayoutManager(requireContext(), comicStripListener).apply {
+            setStackFrom(StackFrom.Top)
+            setTranslationInterval(8.0f)
+        }
+    }
+
+    private val comicStripListener: CardStackListener by lazy {
+        object : CardStackListener {
+            override fun onCardDisappeared(view: View?, position: Int) {
+                val item = comicStripAdapter.currentList?.get(position)
+                if (item?.number == 1) {
+                    Toasty.info(requireContext(), R.string.message_all_caught_up).show()
+                }
+            }
+
+            override fun onCardDragging(direction: Direction?, ratio: Float) {}
+
+            override fun onCardSwiped(direction: Direction?) {}
+
+            override fun onCardCanceled() {}
+
+            override fun onCardAppeared(view: View?, position: Int) {}
+
+            override fun onCardRewound() {}
+        }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
     }
 
     override fun onAttach(context: Context) {
         AndroidSupportInjection.inject(this)
         super.onAttach(context)
-        viewModel.resultsData.observe(this, Observer(::onResult))
-        viewModel.errorData.observe(this, Observer(::onError))
-        viewModel.resetAdapterData.observe(this, Observer(::onResetAdapter))
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu_main, menu)
+        val tintColor = ContextCompat.getColor(requireActivity(), R.color.white)
+        val colorFilter = PorterDuffColorFilter(tintColor, PorterDuff.Mode.SRC_ATOP)
+        for (i in 0 until menu.size()) {
+            menu.getItem(i).icon?.run {
+                mutate()
+                setColorFilter(colorFilter)
+            }
+        }
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.menu_item_refresh -> {
+                resetAndLoadData()
+                true
+            }
+            R.id.menu_item_search -> {
+                viewModel.showSearch()
+                true
+            }
+            R.id.menu_item_about -> {
+                viewModel.showAboutDialog()
+                true
+            }
+            R.id.menu_item_share -> {
+                shareItem()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -64,59 +138,82 @@ class ComicsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         initialiseCardAdapter()
-        viewModel.loadInitialData()
+        setupObservers()
     }
 
-    fun getTopItem(): UiComicStrip? {
-        return when {
-            adapter.count > 0 -> adapter.getItem(0)
-            else -> null
+    private fun setupObservers() {
+        viewModel.pagedItems.observe(viewLifecycleOwner, Observer(this@ComicsFragment::setAdapterContent))
+        viewModel.actionLiveData.observe(viewLifecycleOwner, Observer(this@ComicsFragment::processAction))
+        viewModel.lastLoadedIndex.observe(viewLifecycleOwner, Observer { lastIndex ->
+            viewModel.loadComic(lastIndex ?: 0)
+        })
+    }
+
+    private fun setAdapterContent(pagedList: PagedList<UiComicStrip>) {
+        view_flipper.displayedChild = INDEX_CONTENT
+        comicStripAdapter.submitList(pagedList)
+    }
+
+    private fun processAction(action: ComicAction) {
+        when (action) {
+            is ComicAction.ShowContent -> view_flipper.displayedChild = INDEX_CONTENT
+            is ComicAction.ShowError -> onError(action.uiError)
+            is ComicAction.ShowDialog -> showDialog(action.appDialog)
+            is ComicAction.Idle -> {
+                // NOOP
+            }
+        }
+
+    }
+
+    private fun showDialog(appDialog: AppDialog?) {
+        when (appDialog) {
+            is AppDialog.Search -> dialogFactory.showSearch(
+                requireActivity(), appDialog.id, this@ComicsFragment::processSearchQuery)
+            is AppDialog.About -> dialogFactory.showAboutDialog(requireActivity())
         }
     }
 
+    private fun shareItem() {
+        getTopItem()?.let { uiComicStrip -> intentDispatcher.share(requireActivity(), uiComicStrip) }
+    }
+
+    private fun resetAndLoadData() {
+        Toasty.info(requireContext(), getString(R.string.message_reset_data)).show()
+        viewModel.refresh()
+    }
+
+    private fun processSearchQuery(query: String?, maxStripIndex: Int) {
+        if (!query.isNullOrBlank()) {
+            val stripNumber = query.toInt()
+            if (stripNumber in 1..maxStripIndex) {
+                viewModel.setSearchParameter(stripNumber)
+            } else {
+                Toasty.error(
+                    requireContext(),
+                    getString(R.string.message_page_not_found)
+                ).show()
+            }
+        }
+    }
+
+    private fun getTopItem(): UiComicStrip? {
+        return comicStripAdapter.currentList?.get(0)
+    }
+
     private fun initialiseCardAdapter() {
-        adapter.comicActionListener = object : ComicStripAdapter.ComicActionListener {
+        comicStripAdapter.comicActionListener = object : ComicStripAdapter.ComicActionListener {
+            override fun onImageClicked(uiComicStrip: UiComicStrip) {
+                onItemClicked(uiComicStrip)
+            }
+
             override fun onItemFavouriteChanged(id: Int, isFavourite: Boolean) {
                 viewModel.toggleFavourite(id, isFavourite)
             }
         }
-        card_stack_view.setAdapter(adapter)
-        card_stack_view.setCardEventListener(object : CardStackView.CardEventListener {
-            override fun onCardDragging(percentX: Float, percentY: Float) {
-                // NOOP
-            }
-
-            override fun onCardReversed() {
-                Timber.d("On Card Reversed")
-            }
-
-            override fun onCardMovedToOrigin() {
-                Timber.d("On Card Moved to Origin")
-            }
-
-            override fun onCardClicked(index: Int) {
-                Timber.d("On Card Clicked Index $index")
-                adapter.getItem(index)?.let(::onItemClicked)
-            }
-
-            override fun onCardSwiped(direction: SwipeDirection?) {
-                onItemSwiped(direction)
-            }
-        })
-    }
-
-    private fun onItemSwiped(direction: SwipeDirection?) {
-        synchronized(this) {
-            Timber.d("On Card Swiped $direction and we are now at top index ${card_stack_view.topIndex}")
-            // remove the item so it won't refresh with the adapter
-            adapter.remove(adapter.getItem(card_stack_view.topIndex - 1))
-            if (adapter.count == 0) {
-                Toasty.success(requireActivity(), getString(R.string.message_all_caught_up)).show()
-            } else {
-                // remove the item so it won't refresh with the adapter
-                viewModel.decrementCurrentStrip()
-                viewModel.loadAdditionalData(adapter.count)
-            }
+        card_stack_view.apply {
+            adapter = comicStripAdapter
+            layoutManager = comicStripLayoutManager
         }
     }
 
@@ -127,25 +224,8 @@ class ComicsFragment : Fragment() {
             .show()
     }
 
-    private fun onResetAdapter(shouldReset: Boolean?) {
-        if (shouldReset == true) {
-            Timber.d("Resetting adapter data")
-            adapter.clear()
-            adapter.notifyDataSetChanged()
-            view_flipper.displayedChild = INDEX_PROGRESS
-        }
-    }
-
-    private fun onResult(comicStrip: UiComicStrip) {
-        Timber.d("Loaded item with ID ${comicStrip.number}")
-        view_flipper.displayedChild = INDEX_CONTENT
-        adapter.add(comicStrip)
-        Timber.d("Adapter has ${adapter.count} items")
-        viewModel.loadAdditionalData(adapter.count)
-    }
-
     private fun onError(uiError: UiError?) {
-        uiError?.let {
+        if (uiError != null) {
             view_flipper.displayedChild = INDEX_CONTENT
             Toasty.error(requireActivity(), getString(uiError.messageResId)).show()
             viewModel.clearError()

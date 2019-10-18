@@ -12,13 +12,4 @@ class RepoResult<T>(
     val payload: T? = null,
     val dataSourceError: DataSourceError? = null,
     val next: String? = null
-) {
-
-    fun hasPayload(): Boolean {
-        return payload != null
-    }
-
-    fun hasError(): Boolean {
-        return dataSourceError != null
-    }
-}
+)

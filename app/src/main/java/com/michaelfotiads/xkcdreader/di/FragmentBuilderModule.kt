@@ -12,7 +12,7 @@ import dagger.Module
 import dagger.android.ContributesAndroidInjector
 
 @Module
-abstract class FragmentBuilderModule {
+internal abstract class FragmentBuilderModule {
 
     @ContributesAndroidInjector abstract fun comicsFragment(): ComicsFragment
 

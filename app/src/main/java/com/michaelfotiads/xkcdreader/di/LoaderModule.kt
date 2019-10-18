@@ -7,7 +7,7 @@
 package com.michaelfotiads.xkcdreader.di
 
 import com.michaelfotiads.xkcdreader.data.db.dao.ComicsDao
-import com.michaelfotiads.xkcdreader.net.loader.Loader
+import com.michaelfotiads.xkcdreader.net.loader.ComicsRepo
 import com.michaelfotiads.xkcdreader.net.loader.error.mapper.RetrofitErrorMapper
 import com.michaelfotiads.xkcdreader.net.loader.mapper.ComicsMapper
 import com.michaelfotiads.xkcdreader.net.resolver.NetworkResolver
@@ -30,8 +30,8 @@ class LoaderModule {
         networkResolver: NetworkResolver,
         retrofitErrorMapper: RetrofitErrorMapper,
         scheduler: Scheduler
-    ): Loader {
-        return Loader(
+    ): ComicsRepo {
+        return ComicsRepo(
             retrofit,
             comicsDao,
             comicMapper,

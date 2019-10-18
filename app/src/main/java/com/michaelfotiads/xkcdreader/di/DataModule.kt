@@ -9,7 +9,7 @@ package com.michaelfotiads.xkcdreader.di
 import android.app.Application
 import androidx.room.Room
 import com.michaelfotiads.xkcdreader.data.db.ComicsDatabase
-import com.michaelfotiads.xkcdreader.data.prefs.DataStore
+import com.michaelfotiads.xkcdreader.data.prefs.UserDataStore
 import dagger.Module
 import dagger.Provides
 import javax.inject.Named
@@ -20,7 +20,7 @@ private const val DB_NAME = "key.db.name"
 @Module
 class DataModule {
 
-    @Provides internal fun providesDataStore(application: Application) = DataStore(application)
+    @Provides internal fun providesDataStore(application: Application) = UserDataStore(application)
 
     @Provides @Named(DB_NAME) internal fun providesDatabaseFileName() = "xkcd_comics_db"
 

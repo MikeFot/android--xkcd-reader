@@ -6,13 +6,14 @@ import android.content.pm.PackageManager
 import androidx.core.app.ShareCompat
 import com.michaelfotiads.xkcdreader.R
 import com.michaelfotiads.xkcdreader.ui.model.UiComicStrip
+import javax.inject.Inject
 
 private const val PATH = ".ui.MainActivity"
 private const val TYPE = "text/plain"
 
-class IntentDispatcher(private val activity: Activity) {
+internal class IntentDispatcher @Inject constructor() {
 
-    fun share(uiComicStrip: UiComicStrip) {
+    fun share(activity: Activity, uiComicStrip: UiComicStrip) {
         val packageManager = activity.applicationContext.packageManager
         val componentName = ComponentName(activity.packageName, "${activity.packageName}$PATH")
         packageManager.setComponentEnabledSetting(componentName,

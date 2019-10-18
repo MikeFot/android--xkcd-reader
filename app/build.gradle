@@ -68,10 +68,10 @@ dependencies {
     implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
     implementation "com.squareup.retrofit2:adapter-rxjava2:$retrofitVersion"
     implementation "com.squareup.retrofit2:converter-gson:$retrofitVersion"
-    implementation 'com.squareup.okhttp3:logging-interceptor:3.10.0'
+    implementation 'com.squareup.okhttp3:logging-interceptor:4.2.1'
 
     implementation 'com.github.GrenderG:Toasty:1.4.0'
-    implementation 'com.yuyakaido.android:card-stack-view:1.0.0-beta9'
+    implementation 'com.yuyakaido.android:card-stack-view:2.3.4'
     implementation 'com.google.code.gson:gson:2.8.5'
 
     implementation 'com.chibatching.kotpref:kotpref:2.6.0'
@@ -86,6 +86,9 @@ dependencies {
 
     implementation "androidx.room:room-runtime:$roomVersion"
     kapt "androidx.room:room-compiler:$roomVersion"
+
+    implementation "androidx.paging:paging-runtime-ktx:$paging_version"
+
 
     implementation 'net.sourceforge.streamsupport:streamsupport:1.6.3'
 
