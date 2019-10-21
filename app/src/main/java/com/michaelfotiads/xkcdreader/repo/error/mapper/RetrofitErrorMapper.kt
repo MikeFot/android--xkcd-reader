@@ -4,14 +4,14 @@
  * All rights reserved.
  */
 
-package com.michaelfotiads.xkcdreader.net.loader.error.mapper
+package com.michaelfotiads.xkcdreader.repo.error.mapper
 
 import com.michaelfotiads.xkcdreader.net.error.RestError
 import com.michaelfotiads.xkcdreader.net.error.RestErrorBody
 import com.michaelfotiads.xkcdreader.net.error.RetrofitException
-import com.michaelfotiads.xkcdreader.net.loader.error.DataSourceError
-import com.michaelfotiads.xkcdreader.net.loader.error.DataSourceErrorKind
-import com.michaelfotiads.xkcdreader.net.loader.error.ErrorMapper
+import com.michaelfotiads.xkcdreader.repo.error.DataSourceError
+import com.michaelfotiads.xkcdreader.repo.error.DataSourceErrorKind
+import com.michaelfotiads.xkcdreader.repo.error.ErrorMapper
 import javax.inject.Inject
 
 class RetrofitErrorMapper @Inject constructor() : ErrorMapper<Throwable> {

@@ -1,7 +1,7 @@
 package com.michaelfotiads.xkcdreader.ui.fragment.comics.interactor
 
 import androidx.paging.DataSource
-import com.michaelfotiads.xkcdreader.net.loader.ComicsRepo
+import com.michaelfotiads.xkcdreader.repo.ComicsRepo
 import com.michaelfotiads.xkcdreader.scheduler.ExecutionThreads
 import com.michaelfotiads.xkcdreader.ui.model.UiComicStrip
 import com.michaelfotiads.xkcdreader.ui.model.UiComicStripMapper

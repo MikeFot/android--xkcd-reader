@@ -7,37 +7,36 @@
 package com.michaelfotiads.xkcdreader.di
 
 import com.michaelfotiads.xkcdreader.data.db.dao.ComicsDao
-import com.michaelfotiads.xkcdreader.net.loader.ComicsRepo
-import com.michaelfotiads.xkcdreader.net.loader.error.mapper.RetrofitErrorMapper
-import com.michaelfotiads.xkcdreader.net.loader.mapper.ComicsMapper
-import com.michaelfotiads.xkcdreader.net.resolver.NetworkResolver
+import com.michaelfotiads.xkcdreader.data.db.dao.PagesDao
+import com.michaelfotiads.xkcdreader.repo.ComicsRepo
+import com.michaelfotiads.xkcdreader.repo.error.mapper.RetrofitErrorMapper
+import com.michaelfotiads.xkcdreader.repo.mapper.ComicsMapper
 import dagger.Module
 import dagger.Provides
-import io.reactivex.Scheduler
 import retrofit2.Retrofit
 
 @Module
 class LoaderModule {
 
     @Provides
-    internal fun providesComicsMapper() = ComicsMapper()
+    internal fun providesComicsMapper(): ComicsMapper {
+        return ComicsMapper()
+    }
 
     @Provides
     internal fun providesLoader(
         retrofit: Retrofit,
         comicsDao: ComicsDao,
+        pagesDao: PagesDao,
         comicMapper: ComicsMapper,
-        networkResolver: NetworkResolver,
-        retrofitErrorMapper: RetrofitErrorMapper,
-        scheduler: Scheduler
+        retrofitErrorMapper: RetrofitErrorMapper
     ): ComicsRepo {
         return ComicsRepo(
             retrofit,
             comicsDao,
+            pagesDao,
             comicMapper,
-            networkResolver,
-            retrofitErrorMapper,
-            scheduler
+            retrofitErrorMapper
         )
     }
 }

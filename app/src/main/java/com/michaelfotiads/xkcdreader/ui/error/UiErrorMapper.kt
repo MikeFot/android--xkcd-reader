@@ -6,8 +6,8 @@
 
 package com.michaelfotiads.xkcdreader.ui.error
 
-import com.michaelfotiads.xkcdreader.net.loader.error.DataSourceError
-import com.michaelfotiads.xkcdreader.net.loader.error.DataSourceErrorKind
+import com.michaelfotiads.xkcdreader.repo.error.DataSourceError
+import com.michaelfotiads.xkcdreader.repo.error.DataSourceErrorKind
 import javax.inject.Inject
 
 @Suppress("ComplexMethod")

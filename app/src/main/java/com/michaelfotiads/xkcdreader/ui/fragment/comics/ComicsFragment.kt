@@ -10,7 +10,12 @@ import android.content.Context
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffColorFilter
 import android.os.Bundle
-import android.view.*
+import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -33,8 +38,8 @@ import com.yuyakaido.android.cardstackview.Direction
 import com.yuyakaido.android.cardstackview.StackFrom
 import dagger.android.support.AndroidSupportInjection
 import es.dmoral.toasty.Toasty
-import kotlinx.android.synthetic.main.fragment_comics.*
 import javax.inject.Inject
+import kotlinx.android.synthetic.main.fragment_comics.*
 
 internal class ComicsFragment : Fragment() {
 
@@ -81,7 +86,9 @@ internal class ComicsFragment : Fragment() {
 
             override fun onCardCanceled() {}
 
-            override fun onCardAppeared(view: View?, position: Int) {}
+            override fun onCardAppeared(view: View?, position: Int) {
+                viewModel.setCurrentItem(comicStripAdapter.currentList?.get(position))
+            }
 
             override fun onCardRewound() {}
         }
@@ -124,7 +131,7 @@ internal class ComicsFragment : Fragment() {
                 true
             }
             R.id.menu_item_share -> {
-                shareItem()
+                viewModel.shareCurrentItem()
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -159,11 +166,11 @@ internal class ComicsFragment : Fragment() {
             is ComicAction.ShowContent -> view_flipper.displayedChild = INDEX_CONTENT
             is ComicAction.ShowError -> onError(action.uiError)
             is ComicAction.ShowDialog -> showDialog(action.appDialog)
+            is ComicAction.Share -> intentDispatcher.share(requireActivity(), action.uiComicStrip)
             is ComicAction.Idle -> {
                 // NOOP
             }
         }
-
     }
 
     private fun showDialog(appDialog: AppDialog?) {
@@ -172,10 +179,6 @@ internal class ComicsFragment : Fragment() {
                 requireActivity(), appDialog.id, this@ComicsFragment::processSearchQuery)
             is AppDialog.About -> dialogFactory.showAboutDialog(requireActivity())
         }
-    }
-
-    private fun shareItem() {
-        getTopItem()?.let { uiComicStrip -> intentDispatcher.share(requireActivity(), uiComicStrip) }
     }
 
     private fun resetAndLoadData() {
@@ -195,10 +198,6 @@ internal class ComicsFragment : Fragment() {
                 ).show()
             }
         }
-    }
-
-    private fun getTopItem(): UiComicStrip? {
-        return comicStripAdapter.currentList?.get(0)
     }
 
     private fun initialiseCardAdapter() {

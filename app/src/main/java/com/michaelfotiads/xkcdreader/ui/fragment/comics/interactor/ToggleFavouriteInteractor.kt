@@ -1,6 +1,6 @@
 package com.michaelfotiads.xkcdreader.ui.fragment.comics.interactor
 
-import com.michaelfotiads.xkcdreader.net.loader.ComicsRepo
+import com.michaelfotiads.xkcdreader.repo.ComicsRepo
 import com.michaelfotiads.xkcdreader.scheduler.ExecutionThreads
 import io.reactivex.Completable
 import io.reactivex.Single
@@ -12,7 +12,7 @@ class ToggleFavouriteInteractor @Inject constructor(
 ) : BaseRxInteractor() {
 
     fun toggleFavourite(comicStripId: Int, isFavourite: Boolean) {
-       addDisposable(Single.fromCallable {
+        addDisposable(Single.fromCallable {
             comicsRepo.getForComicStripId(comicStripId)
         }
             .doOnSubscribe(this::addDisposable)
@@ -27,6 +27,6 @@ class ToggleFavouriteInteractor @Inject constructor(
                         .subscribe()
                 }
             }
-       )
+        )
     }
 }

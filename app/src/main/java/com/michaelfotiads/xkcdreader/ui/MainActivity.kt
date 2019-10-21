@@ -17,8 +17,8 @@ import dagger.android.AndroidInjection
 import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.support.HasSupportFragmentInjector
-import kotlinx.android.synthetic.main.activity_main.*
 import javax.inject.Inject
+import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity(), HasSupportFragmentInjector {
 
@@ -61,13 +61,9 @@ class MainActivity : AppCompatActivity(), HasSupportFragmentInjector {
             }
         }
         bottom_navigation_view.selectedItemId = R.id.action_comics
-
     }
-
 
     override fun supportFragmentInjector(): AndroidInjector<Fragment> {
         return supportFragmentInjector
     }
-
-
 }

@@ -4,7 +4,7 @@
  * All rights reserved.
  */
 
-package com.michaelfotiads.xkcdreader.net.loader.mapper
+package com.michaelfotiads.xkcdreader.repo.mapper
 
 import com.michaelfotiads.xkcdreader.data.db.entity.ComicEntity
 import com.michaelfotiads.xkcdreader.net.api.model.ComicStrip

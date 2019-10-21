@@ -11,15 +11,17 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity(tableName = "comics_table")
-class ComicEntity(
+data class ComicEntity(
     @PrimaryKey var num: Int,
     var link: String,
     var news: String,
-    @ColumnInfo(name = "image") var img: String,
+    @ColumnInfo(name = "image")
+    var img: String,
     var title: String,
     @ColumnInfo(name = "alt_text")
     var alt: String,
-    @ColumnInfo(name = "safe_title") var safeTitle: String,
+    @ColumnInfo(name = "safe_title")
+    var safeTitle: String,
     var transcript: String,
     var day: String,
     var month: String,

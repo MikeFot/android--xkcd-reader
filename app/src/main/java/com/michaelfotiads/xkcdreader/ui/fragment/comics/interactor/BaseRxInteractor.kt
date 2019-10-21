@@ -14,5 +14,4 @@ abstract class BaseRxInteractor {
     fun clear() {
         subscriptions.clear()
     }
-
 }

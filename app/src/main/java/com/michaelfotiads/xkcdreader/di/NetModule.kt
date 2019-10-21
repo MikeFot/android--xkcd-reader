@@ -10,7 +10,7 @@ import android.app.Application
 import com.google.gson.Gson
 import com.michaelfotiads.xkcdreader.net.factory.OkHttpBuilderFactory
 import com.michaelfotiads.xkcdreader.net.factory.RetrofitBuilderFactory
-import com.michaelfotiads.xkcdreader.net.loader.error.mapper.RetrofitErrorMapper
+import com.michaelfotiads.xkcdreader.repo.error.mapper.RetrofitErrorMapper
 import dagger.Module
 import dagger.Provides
 import javax.inject.Named

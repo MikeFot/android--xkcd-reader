@@ -4,7 +4,7 @@
  * All rights reserved.
  */
 
-package com.michaelfotiads.xkcdreader.net.loader.error
+package com.michaelfotiads.xkcdreader.repo.error
 
 data class DataSourceError(val errorMessage: String?, val kind: DataSourceErrorKind) {
     val creationTime: Long

@@ -13,13 +13,11 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.paging.PagedListAdapter
 import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.michaelfotiads.xkcdreader.R
 import com.michaelfotiads.xkcdreader.ui.model.UiComicStrip
 import com.michaelfotiads.xkcdreader.ui.view.FavouriteImageView
-import timber.log.Timber
 
 class ComicStripAdapter : PagedListAdapter<UiComicStrip, ComicStripAdapter.ViewHolder>(DiffCallback()) {
 

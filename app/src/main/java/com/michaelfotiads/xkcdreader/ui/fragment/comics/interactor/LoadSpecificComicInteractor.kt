@@ -2,11 +2,11 @@ package com.michaelfotiads.xkcdreader.ui.fragment.comics.interactor
 
 import com.michaelfotiads.xkcdreader.data.db.entity.ComicEntity
 import com.michaelfotiads.xkcdreader.data.prefs.UserDataStore
-import com.michaelfotiads.xkcdreader.net.loader.ComicsRepo
-import com.michaelfotiads.xkcdreader.net.loader.RepoResult
-import com.michaelfotiads.xkcdreader.net.loader.error.DataSourceError
-import com.michaelfotiads.xkcdreader.net.loader.error.DataSourceErrorKind
 import com.michaelfotiads.xkcdreader.net.resolver.NetworkResolver
+import com.michaelfotiads.xkcdreader.repo.ComicsRepo
+import com.michaelfotiads.xkcdreader.repo.RepoResult
+import com.michaelfotiads.xkcdreader.repo.error.DataSourceError
+import com.michaelfotiads.xkcdreader.repo.error.DataSourceErrorKind
 import com.michaelfotiads.xkcdreader.scheduler.ExecutionThreads
 import com.michaelfotiads.xkcdreader.ui.error.UiError
 import com.michaelfotiads.xkcdreader.ui.error.UiErrorMapper
@@ -79,5 +79,4 @@ class LoadSpecificComicInteractor @Inject constructor(
                 }
             }
     }
-
 }

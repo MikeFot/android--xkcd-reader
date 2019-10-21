@@ -4,9 +4,9 @@
  * All rights reserved.
  */
 
-package com.michaelfotiads.xkcdreader.net.loader
+package com.michaelfotiads.xkcdreader.repo
 
-import com.michaelfotiads.xkcdreader.net.loader.error.DataSourceError
+import com.michaelfotiads.xkcdreader.repo.error.DataSourceError
 
 class RepoResult<T>(
     val payload: T? = null,

@@ -11,7 +11,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.michaelfotiads.xkcdreader.data.prefs.UserDataStore
 import com.michaelfotiads.xkcdreader.ui.fragment.comics.interactor.LoadComicPagesInteractor
 import com.michaelfotiads.xkcdreader.ui.fragment.comics.interactor.LoadSpecificComicInteractor
-import com.michaelfotiads.xkcdreader.ui.fragment.comics.interactor.ResetDataInteractor
+import com.michaelfotiads.xkcdreader.ui.fragment.comics.interactor.ResetPagesInteractor
 import com.michaelfotiads.xkcdreader.ui.fragment.comics.interactor.ToggleFavouriteInteractor
 import javax.inject.Inject
 
@@ -19,7 +19,7 @@ class ComicsViewModelFactory @Inject constructor(
     private val loadComicPagesInteractor: LoadComicPagesInteractor,
     private val loadSpecificComicInteractor: LoadSpecificComicInteractor,
     private val toggleFavouriteInteractor: ToggleFavouriteInteractor,
-    private val clearDataInteractor: ResetDataInteractor,
+    private val clearDataInteractor: ResetPagesInteractor,
     private val dataStore: UserDataStore
 ) : ViewModelProvider.Factory {
 

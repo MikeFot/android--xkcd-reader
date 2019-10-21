@@ -4,41 +4,33 @@
  * All rights reserved.
  */
 
-package com.michaelfotiads.xkcdreader.net.loader
+package com.michaelfotiads.xkcdreader.repo
 
 import androidx.lifecycle.LiveData
 import androidx.paging.DataSource
 import com.michaelfotiads.xkcdreader.data.db.dao.ComicsDao
+import com.michaelfotiads.xkcdreader.data.db.dao.PagesDao
 import com.michaelfotiads.xkcdreader.data.db.entity.ComicEntity
+import com.michaelfotiads.xkcdreader.data.db.entity.PageEntity
 import com.michaelfotiads.xkcdreader.net.api.ComicApi
 import com.michaelfotiads.xkcdreader.net.api.model.ComicStrip
-import com.michaelfotiads.xkcdreader.net.loader.error.mapper.RetrofitErrorMapper
-import com.michaelfotiads.xkcdreader.net.loader.mapper.ComicsMapper
-import com.michaelfotiads.xkcdreader.net.resolver.NetworkResolver
-import io.reactivex.Scheduler
+import com.michaelfotiads.xkcdreader.repo.error.mapper.RetrofitErrorMapper
+import com.michaelfotiads.xkcdreader.repo.mapper.ComicsMapper
 import io.reactivex.Single
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.disposables.Disposable
 import java8.util.Optional
 import retrofit2.Retrofit
-import timber.log.Timber
 
 class ComicsRepo(
     retrofit: Retrofit,
     private val comicsDao: ComicsDao,
+    private val pagesDao: PagesDao,
     private val comicsMapper: ComicsMapper,
-    private val networkResolver: NetworkResolver,
-    private val errorMapper: RetrofitErrorMapper,
-    private val scheduler: Scheduler
+    private val errorMapper: RetrofitErrorMapper
 ) {
 
-    private var latestComicCall: Disposable? = null
-    private var specificComicCall: Disposable? = null
-    private val disposables = CompositeDisposable()
     private val comicApi = ComicApi(retrofit)
 
     fun loadLatestComic(): Single<RepoResult<ComicEntity>> {
-
         return comicApi.getLatest()
             .map { comicStrip ->
                 val entity = upsertComicStripFromNet(comicStrip)
@@ -57,7 +49,7 @@ class ComicsRepo(
             .flatMap { optional ->
                 if (optional.isPresent) {
                     val entity = optional.get()!!
-                    Timber.i("Getting comic from DB $comicId")
+                    pagesDao.upsert(PageEntity(entity.num))
                     Single.just(RepoResult(entity))
                 } else {
                     comicApi.getForId(comicId = comicId.toString())
@@ -65,8 +57,8 @@ class ComicsRepo(
                             val entity = upsertComicStripFromNet(comicStrip)
                             RepoResult(entity)
                         }
-                        .onErrorReturn {
-                            RepoResult(dataSourceError = errorMapper.convert(it))
+                        .onErrorReturn { throwable ->
+                            RepoResult(dataSourceError = errorMapper.convert(throwable))
                         }
                 }
             }
@@ -86,11 +78,13 @@ class ComicsRepo(
     }
 
     fun getPagedItems(): DataSource.Factory<Int, ComicEntity> {
-        return comicsDao.getComicsPaged()
+        return pagesDao.getComicsPaged().map { pageWithComic ->
+            pageWithComic.comicEntity
+        }
     }
 
     fun deleteData() {
-        comicsDao.deleteAll()
+        pagesDao.deleteAll()
     }
 
     private fun upsertComicStripFromNet(comicStrip: ComicStrip): ComicEntity {
@@ -99,12 +93,7 @@ class ComicsRepo(
             entity.isFavourite = existingEntity.isFavourite
         }
         comicsDao.upsert(entity)
+        pagesDao.upsert(PageEntity(entity.num))
         return entity
-    }
-
-    fun clearAllJobs() {
-        latestComicCall?.dispose()
-        specificComicCall?.dispose()
-        disposables.clear()
     }
 }

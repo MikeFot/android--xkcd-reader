@@ -13,18 +13,22 @@ import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
 import com.michaelfotiads.xkcdreader.data.prefs.UserDataStore
 import com.michaelfotiads.xkcdreader.ui.error.UiError
-import com.michaelfotiads.xkcdreader.ui.fragment.comics.interactor.*
+import com.michaelfotiads.xkcdreader.ui.fragment.comics.interactor.BaseRxInteractor
+import com.michaelfotiads.xkcdreader.ui.fragment.comics.interactor.LoadComicPagesInteractor
+import com.michaelfotiads.xkcdreader.ui.fragment.comics.interactor.LoadSpecificComicInteractor
+import com.michaelfotiads.xkcdreader.ui.fragment.comics.interactor.ResetPagesInteractor
+import com.michaelfotiads.xkcdreader.ui.fragment.comics.interactor.ToggleFavouriteInteractor
 import com.michaelfotiads.xkcdreader.ui.fragment.comics.model.ComicAction
 import com.michaelfotiads.xkcdreader.ui.model.AppDialog
 import com.michaelfotiads.xkcdreader.ui.model.UiComicStrip
 
-private const val PAGES_SIZE = 12
+private const val PAGES_SIZE = 20
 
 class ComicsViewModel(
     loadComicPagesInteractor: LoadComicPagesInteractor,
     private val loadSpecificComicInteractor: LoadSpecificComicInteractor,
     private val toggleFavouriteInteractor: ToggleFavouriteInteractor,
-    private val resetDataInteractor: ResetDataInteractor,
+    private val resetPagesInteractor: ResetPagesInteractor,
     private val dataStore: UserDataStore
 ) : ViewModel() {
     val pagedItems: LiveData<PagedList<UiComicStrip>>
@@ -32,11 +36,15 @@ class ComicsViewModel(
     val lastLoadedIndex = MutableLiveData<Int>().apply { value = 0 }
 
     private val interactors = listOf(
-        loadSpecificComicInteractor, toggleFavouriteInteractor, resetDataInteractor
+        loadSpecificComicInteractor, toggleFavouriteInteractor, resetPagesInteractor
     )
     private var searchQueryId = 0
+    private var currentItem: UiComicStrip? = null
 
     init {
+
+        resetPagesInteractor.resetData()
+
         class UiComicStripBoundaryCallback : PagedList.BoundaryCallback<UiComicStrip>() {
             override fun onZeroItemsLoaded() {
                 super.onZeroItemsLoaded()
@@ -83,7 +91,7 @@ class ComicsViewModel(
 
     fun refresh() {
         loadSpecificComicInteractor.clear()
-        resetDataInteractor.resetData()
+        resetPagesInteractor.resetData()
     }
 
     private fun showSearchDialog(comicStripId: Int) {
@@ -105,5 +113,15 @@ class ComicsViewModel(
 
     fun toggleFavourite(comicStripId: Int, isFavourite: Boolean) {
         toggleFavouriteInteractor.toggleFavourite(comicStripId, isFavourite)
+    }
+
+    fun shareCurrentItem() {
+        currentItem?.run {
+            actionLiveData.postValue(ComicAction.Share(this))
+        }
+    }
+
+    fun setCurrentItem(uiComicStrip: UiComicStrip?) {
+        this.currentItem = uiComicStrip
     }
 }
