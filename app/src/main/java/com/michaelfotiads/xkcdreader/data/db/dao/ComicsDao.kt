@@ -38,6 +38,9 @@ interface ComicsDao {
     @Query("SELECT * from comics_table where isFavourite = 1 ORDER BY num DESC")
     fun getAllFavouritesLiveData(): LiveData<List<ComicEntity>>
 
+    @Query("SELECT * from comics_table where isFavourite = 1 ORDER BY num DESC")
+    fun getFavouritesPaged(): DataSource.Factory<Int, ComicEntity>
+
     @Query("SELECT * FROM comics_table where num = :num")
     fun getForId(num: Int): ComicEntity?
 }

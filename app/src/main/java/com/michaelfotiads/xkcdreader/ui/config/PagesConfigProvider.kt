@@ -2,6 +2,6 @@ package com.michaelfotiads.xkcdreader.ui.config
 
 import javax.inject.Inject
 
-class ImageConfigProvider @Inject constructor() {
-    val imageCount = 6
+class PagesConfigProvider @Inject constructor() {
+    val pagesCount = 20
 }

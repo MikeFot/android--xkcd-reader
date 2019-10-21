@@ -30,7 +30,8 @@ class FavouriteImageView : ImageView {
         setup(context, attrs, defStyleAttr, 0)
     }
 
-    @Suppress("unused") constructor(
+    @Suppress("unused")
+    constructor(
         context: Context,
         attrs: AttributeSet,
         defStyleAttr: Int,
@@ -53,17 +54,11 @@ class FavouriteImageView : ImageView {
             )
 
             val tintColor = typedArray.getColor(R.styleable.FavouriteImageView_iconTint, 0)
-            typedArray.getDrawable(R.styleable.FavouriteImageView_iconOn)?.let {
-                if (tintColor != 0) {
-                    it.setTint(tintColor)
-                }
-                iconOn = it
+            typedArray.getDrawable(R.styleable.FavouriteImageView_iconOn)?.let { drawable ->
+                tintAndSetIconOn(tintColor, drawable)
             }
-            typedArray.getDrawable(R.styleable.FavouriteImageView_iconOff)?.let {
-                if (tintColor != 0) {
-                    it.setTint(tintColor)
-                }
-                iconOff = it
+            typedArray.getDrawable(R.styleable.FavouriteImageView_iconOff)?.let { drawable ->
+                tintAndSetIconOff(tintColor, drawable)
             }
             typedArray.recycle()
         }
@@ -73,15 +68,27 @@ class FavouriteImageView : ImageView {
         }
     }
 
+    private fun tintAndSetIconOn(tintColor: Int, drawable: Drawable) {
+        iconOn = drawable.apply {
+            if (tintColor != 0) {
+                setTint(tintColor)
+            }
+        }
+    }
+
+    private fun tintAndSetIconOff(tintColor: Int, drawable: Drawable) {
+        iconOff = drawable.apply {
+            if (tintColor != 0) {
+                setTint(tintColor)
+            }
+        }
+    }
+
     fun setFavourite(isFavourite: Boolean) {
         if (isFavourite) {
-            iconOn?.let {
-                setImageDrawable(it)
-            }
+            iconOn?.let(this::setImageDrawable)
         } else {
-            iconOff?.let {
-                setImageDrawable(it)
-            }
+            iconOff?.let(this::setImageDrawable)
         }
     }
 }

@@ -13,7 +13,7 @@ class ResetPagesInteractor @Inject constructor(
     fun resetData() {
         addDisposable(
             Completable.fromAction {
-                loader.deleteData()
+                loader.deletePageData()
             }
                 .subscribeOn(executionThreads.jobExecutionThread)
                 .subscribe()

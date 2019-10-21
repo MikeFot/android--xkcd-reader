@@ -20,33 +20,21 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
-import androidx.paging.PagedList
 import com.michaelfotiads.xkcdreader.R
 import com.michaelfotiads.xkcdreader.ui.dialog.DialogFactory
-import com.michaelfotiads.xkcdreader.ui.error.UiError
-import com.michaelfotiads.xkcdreader.ui.fragment.comics.adapter.ComicStripAdapter
+import com.michaelfotiads.xkcdreader.ui.fragment.comics.binder.ViewBinder
 import com.michaelfotiads.xkcdreader.ui.fragment.comics.model.ComicAction
 import com.michaelfotiads.xkcdreader.ui.fragment.comics.viewmodel.ComicsViewModel
 import com.michaelfotiads.xkcdreader.ui.fragment.comics.viewmodel.ComicsViewModelFactory
 import com.michaelfotiads.xkcdreader.ui.intent.IntentDispatcher
 import com.michaelfotiads.xkcdreader.ui.model.AppDialog
 import com.michaelfotiads.xkcdreader.ui.model.UiComicStrip
-import com.stfalcon.frescoimageviewer.ImageViewer
-import com.yuyakaido.android.cardstackview.CardStackLayoutManager
-import com.yuyakaido.android.cardstackview.CardStackListener
-import com.yuyakaido.android.cardstackview.Direction
-import com.yuyakaido.android.cardstackview.StackFrom
 import dagger.android.support.AndroidSupportInjection
-import es.dmoral.toasty.Toasty
 import javax.inject.Inject
-import kotlinx.android.synthetic.main.fragment_comics.*
 
 internal class ComicsFragment : Fragment() {
 
     companion object {
-        private const val INDEX_PROGRESS = 0
-        private const val INDEX_CONTENT = 1
-
         @JvmStatic
         fun newInstance() = ComicsFragment()
     }
@@ -61,38 +49,8 @@ internal class ComicsFragment : Fragment() {
     private val viewModel: ComicsViewModel by lazy {
         ViewModelProviders.of(this, viewModelFactory).get(ComicsViewModel::class.java)
     }
-    private val comicStripAdapter: ComicStripAdapter by lazy {
-        ComicStripAdapter()
-    }
-    private val comicStripLayoutManager by lazy {
-        CardStackLayoutManager(requireContext(), comicStripListener).apply {
-            setStackFrom(StackFrom.Top)
-            setTranslationInterval(8.0f)
-        }
-    }
 
-    private val comicStripListener: CardStackListener by lazy {
-        object : CardStackListener {
-            override fun onCardDisappeared(view: View?, position: Int) {
-                val item = comicStripAdapter.currentList?.get(position)
-                if (item?.number == 1) {
-                    Toasty.info(requireContext(), R.string.message_all_caught_up).show()
-                }
-            }
-
-            override fun onCardDragging(direction: Direction?, ratio: Float) {}
-
-            override fun onCardSwiped(direction: Direction?) {}
-
-            override fun onCardCanceled() {}
-
-            override fun onCardAppeared(view: View?, position: Int) {
-                viewModel.setCurrentItem(comicStripAdapter.currentList?.get(position))
-            }
-
-            override fun onCardRewound() {}
-        }
-    }
+    private lateinit var binder: ViewBinder
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -144,27 +102,35 @@ internal class ComicsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        initialiseCardAdapter()
+        binder = ViewBinder(view)
+        binder.callbacks = object : ViewBinder.ViewActionCallbacks {
+            override fun onItemAppeared(uiComicStrip: UiComicStrip) {
+                viewModel.setCurrentItem(uiComicStrip)
+            }
+
+            override fun onErrorShown() {
+                viewModel.clearError()
+            }
+
+            override fun toggleFavourite(id: Int, favourite: Boolean) {
+                viewModel.toggleFavourite(id, favourite)
+            }
+
+        }
+        binder.initialiseCardAdapter()
         setupObservers()
     }
 
     private fun setupObservers() {
-        viewModel.pagedItems.observe(viewLifecycleOwner, Observer(this@ComicsFragment::setAdapterContent))
-        viewModel.actionLiveData.observe(viewLifecycleOwner, Observer(this@ComicsFragment::processAction))
-        viewModel.lastLoadedIndex.observe(viewLifecycleOwner, Observer { lastIndex ->
-            viewModel.loadComic(lastIndex ?: 0)
-        })
-    }
-
-    private fun setAdapterContent(pagedList: PagedList<UiComicStrip>) {
-        view_flipper.displayedChild = INDEX_CONTENT
-        comicStripAdapter.submitList(pagedList)
+        viewModel.pagedItems.observe(viewLifecycleOwner, Observer(binder::setAdapterContent))
+        viewModel.actionLiveData.observe(viewLifecycleOwner, Observer(this::processAction))
+        viewModel.lastLoadedIndex.observe(viewLifecycleOwner, Observer(viewModel::loadComic))
     }
 
     private fun processAction(action: ComicAction) {
         when (action) {
-            is ComicAction.ShowContent -> view_flipper.displayedChild = INDEX_CONTENT
-            is ComicAction.ShowError -> onError(action.uiError)
+            is ComicAction.ShowContent -> binder.showContent()
+            is ComicAction.ShowError -> binder.onError(action.uiError)
             is ComicAction.ShowDialog -> showDialog(action.appDialog)
             is ComicAction.Share -> intentDispatcher.share(requireActivity(), action.uiComicStrip)
             is ComicAction.Idle -> {
@@ -176,13 +142,13 @@ internal class ComicsFragment : Fragment() {
     private fun showDialog(appDialog: AppDialog?) {
         when (appDialog) {
             is AppDialog.Search -> dialogFactory.showSearch(
-                requireActivity(), appDialog.id, this@ComicsFragment::processSearchQuery)
+                requireActivity(), appDialog.maxStripIndex, this::processSearchQuery)
             is AppDialog.About -> dialogFactory.showAboutDialog(requireActivity())
         }
     }
 
     private fun resetAndLoadData() {
-        Toasty.info(requireContext(), getString(R.string.message_reset_data)).show()
+        binder.showGettingLatest()
         viewModel.refresh()
     }
 
@@ -192,42 +158,8 @@ internal class ComicsFragment : Fragment() {
             if (stripNumber in 1..maxStripIndex) {
                 viewModel.setSearchParameter(stripNumber)
             } else {
-                Toasty.error(
-                    requireContext(),
-                    getString(R.string.message_page_not_found)
-                ).show()
+                binder.showPageNotFound()
             }
-        }
-    }
-
-    private fun initialiseCardAdapter() {
-        comicStripAdapter.comicActionListener = object : ComicStripAdapter.ComicActionListener {
-            override fun onImageClicked(uiComicStrip: UiComicStrip) {
-                onItemClicked(uiComicStrip)
-            }
-
-            override fun onItemFavouriteChanged(id: Int, isFavourite: Boolean) {
-                viewModel.toggleFavourite(id, isFavourite)
-            }
-        }
-        card_stack_view.apply {
-            adapter = comicStripAdapter
-            layoutManager = comicStripLayoutManager
-        }
-    }
-
-    private fun onItemClicked(item: UiComicStrip) {
-        ImageViewer.Builder<String>(requireActivity(), listOf(item.imageLink))
-            .hideStatusBar(false)
-            .setImageMargin(activity, R.dimen.margin_16dp)
-            .show()
-    }
-
-    private fun onError(uiError: UiError?) {
-        if (uiError != null) {
-            view_flipper.displayedChild = INDEX_CONTENT
-            Toasty.error(requireActivity(), getString(uiError.messageResId)).show()
-            viewModel.clearError()
         }
     }
 }

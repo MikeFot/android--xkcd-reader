@@ -77,13 +77,17 @@ class ComicsRepo(
         return Optional.ofNullable(comicsDao.getForId(comicStripId))
     }
 
-    fun getPagedItems(): DataSource.Factory<Int, ComicEntity> {
+    fun getPagedComics(): DataSource.Factory<Int, ComicEntity> {
         return pagesDao.getComicsPaged().map { pageWithComic ->
             pageWithComic.comicEntity
         }
     }
 
-    fun deleteData() {
+    fun getPagedFavourites(): DataSource.Factory<Int, ComicEntity> {
+        return comicsDao.getFavouritesPaged()
+    }
+
+    fun deletePageData() {
         pagesDao.deleteAll()
     }
 

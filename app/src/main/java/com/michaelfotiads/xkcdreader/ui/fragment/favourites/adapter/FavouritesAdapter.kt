@@ -4,8 +4,12 @@
  * All rights reserved.
  */
 
-package com.michaelfotiads.xkcdreader.ui.fragment.comics.adapter
+package com.michaelfotiads.xkcdreader.ui.fragment.favourites.adapter
 
+import android.content.Context
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.Drawable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,25 +18,35 @@ import android.widget.TextView
 import androidx.paging.PagedListAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
+import com.bumptech.glide.ListPreloader
+import com.bumptech.glide.RequestBuilder
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.michaelfotiads.xkcdreader.R
+import com.michaelfotiads.xkcdreader.di.GlideApp
 import com.michaelfotiads.xkcdreader.ui.model.UiComicStrip
 import com.michaelfotiads.xkcdreader.ui.view.FavouriteImageView
+import java.util.*
 
-internal class ComicStripAdapter : PagedListAdapter<UiComicStrip, ComicStripAdapter.ViewHolder>(DiffCallback()) {
+internal class FavouritesAdapter(private val context: Context) : PagedListAdapter<UiComicStrip, FavouritesAdapter.ViewHolder>(DiffCallback()),
+    ListPreloader.PreloadModelProvider<UiComicStrip> {
 
-    var comicActionListener: ComicActionListener? = null
+    var comicActionListener: FavouritesActionListener? = null
 
-    interface ComicActionListener {
+    interface FavouritesActionListener {
 
         fun onImageClicked(uiComicStrip: UiComicStrip)
 
         fun onItemFavouriteChanged(id: Int, isFavourite: Boolean)
     }
 
+    private val fullRequest = GlideApp.with(context)
+        .asDrawable()
+        .diskCacheStrategy(DiskCacheStrategy.DATA)
+        .placeholder(ColorDrawable(Color.GRAY))
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.list_item_comic_strip, parent, false)
+            .inflate(R.layout.list_item_favourite, parent, false)
         return ViewHolder(view)
     }
 
@@ -55,8 +69,7 @@ internal class ComicStripAdapter : PagedListAdapter<UiComicStrip, ComicStripAdap
                         )
                     }
                 }
-                Glide.with(comicImageView)
-                    .asDrawable()
+                fullRequest
                     .load(comicStrip.imageLink)
                     .into(holder.comicImageView)
                 comicImageView.setOnClickListener {
@@ -64,6 +77,14 @@ internal class ComicStripAdapter : PagedListAdapter<UiComicStrip, ComicStripAdap
                 }
             }
         }
+    }
+
+    override fun getPreloadItems(position: Int): MutableList<UiComicStrip> {
+        return currentList?.subList(position, position + 1) ?: Collections.emptyList()
+    }
+
+    override fun getPreloadRequestBuilder(item: UiComicStrip): RequestBuilder<Drawable> {
+        return fullRequest.load(item.imageLink)
     }
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -80,11 +101,7 @@ internal class ComicStripAdapter : PagedListAdapter<UiComicStrip, ComicStripAdap
         }
 
         override fun areContentsTheSame(oldItem: UiComicStrip, newItem: UiComicStrip): Boolean {
-            return oldItem.imageLink == newItem.imageLink
-                && oldItem.title == newItem.title
-                && oldItem.subtitle == newItem.subtitle
-                && oldItem.altText == newItem.altText
-                && oldItem.shareLink == newItem.shareLink
+            return oldItem == newItem
         }
     }
 }

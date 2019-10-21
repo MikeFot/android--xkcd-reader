@@ -12,6 +12,7 @@ import androidx.lifecycle.ViewModel
 import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
 import com.michaelfotiads.xkcdreader.data.prefs.UserDataStore
+import com.michaelfotiads.xkcdreader.ui.config.PagesConfigProvider
 import com.michaelfotiads.xkcdreader.ui.error.UiError
 import com.michaelfotiads.xkcdreader.ui.fragment.comics.interactor.BaseRxInteractor
 import com.michaelfotiads.xkcdreader.ui.fragment.comics.interactor.LoadComicPagesInteractor
@@ -22,18 +23,17 @@ import com.michaelfotiads.xkcdreader.ui.fragment.comics.model.ComicAction
 import com.michaelfotiads.xkcdreader.ui.model.AppDialog
 import com.michaelfotiads.xkcdreader.ui.model.UiComicStrip
 
-private const val PAGES_SIZE = 20
-
 class ComicsViewModel(
     loadComicPagesInteractor: LoadComicPagesInteractor,
     private val loadSpecificComicInteractor: LoadSpecificComicInteractor,
     private val toggleFavouriteInteractor: ToggleFavouriteInteractor,
     private val resetPagesInteractor: ResetPagesInteractor,
+    pagesConfigProvider: PagesConfigProvider,
     private val dataStore: UserDataStore
 ) : ViewModel() {
     val pagedItems: LiveData<PagedList<UiComicStrip>>
     val actionLiveData = MutableLiveData<ComicAction>().apply { value = ComicAction.Idle }
-    val lastLoadedIndex = MutableLiveData<Int>().apply { value = 0 }
+    val lastLoadedIndex = MutableLiveData<Int?>()
 
     private val interactors = listOf(
         loadSpecificComicInteractor, toggleFavouriteInteractor, resetPagesInteractor
@@ -42,9 +42,7 @@ class ComicsViewModel(
     private var currentItem: UiComicStrip? = null
 
     init {
-
         resetPagesInteractor.resetData()
-
         class UiComicStripBoundaryCallback : PagedList.BoundaryCallback<UiComicStrip>() {
             override fun onZeroItemsLoaded() {
                 super.onZeroItemsLoaded()
@@ -59,21 +57,22 @@ class ComicsViewModel(
                 }
             }
         }
-        pagedItems = LivePagedListBuilder(loadComicPagesInteractor.loadData(), PAGES_SIZE)
+        pagedItems = LivePagedListBuilder(loadComicPagesInteractor.getPages(), pagesConfigProvider.pagesCount)
             .setBoundaryCallback(UiComicStripBoundaryCallback())
             .build()
     }
 
-    fun loadComic(comicStripId: Int) {
-        loadSpecificComicInteractor.load(comicStripId, object : LoadSpecificComicInteractor.Callback {
-            override fun onSuccess(uiComicStrip: UiComicStrip) {
-                actionLiveData.postValue(ComicAction.ShowContent)
-            }
+    fun loadComic(comicStripId: Int?) {
+        loadSpecificComicInteractor.load(comicStripId ?: 0,
+            object : LoadSpecificComicInteractor.Callback {
+                override fun onSuccess(uiComicStrip: UiComicStrip) {
+                    actionLiveData.postValue(ComicAction.ShowContent)
+                }
 
-            override fun onError(uiError: UiError) {
-                actionLiveData.postValue(ComicAction.ShowError(uiError))
-            }
-        })
+                override fun onError(uiError: UiError) {
+                    actionLiveData.postValue(ComicAction.ShowError(uiError))
+                }
+            })
     }
 
     fun showSearch() {
