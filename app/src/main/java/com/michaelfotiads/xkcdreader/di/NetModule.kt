@@ -1,93 +1,45 @@
 /*
- * Developed by Michail Fotiadis on 08/10/18 14:35.
- * Last modified 08/10/18 14:34.
- * Copyright (c) 2018. All rights reserved.
+ * Developed by Michail Fotiadis.
+ * Copyright (c) 2018.
+ * All rights reserved.
  */
 
 package com.michaelfotiads.xkcdreader.di
 
-import android.content.Context
-import android.net.ConnectivityManager
+import android.app.Application
 import com.google.gson.Gson
-import com.michaelfotiads.xkcdreader.net.error.RxErrorHandlingCallAdapterFactory
-import com.michaelfotiads.xkcdreader.net.loader.NetworkLoader
-import com.michaelfotiads.xkcdreader.net.loader.error.mapper.RetrofitErrorMapper
-import com.michaelfotiads.xkcdreader.net.resolver.NetworkResolver
+import com.michaelfotiads.xkcdreader.net.factory.OkHttpBuilderFactory
+import com.michaelfotiads.xkcdreader.net.factory.RetrofitBuilderFactory
+import com.michaelfotiads.xkcdreader.repo.error.mapper.RetrofitErrorMapper
 import dagger.Module
 import dagger.Provides
-import io.reactivex.Scheduler
-import okhttp3.Cache
-import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Named
 import javax.inject.Singleton
+import okhttp3.Cache
+import okhttp3.OkHttpClient
+import retrofit2.Retrofit
 
 @Module
 class NetModule {
 
-    @Provides
-    @Singleton
-    internal fun providesCache(context: Context): Cache {
-        return Cache(context.cacheDir, 10 * 1024 * 1024)
+    @Provides @Singleton internal fun providesCache(application: Application): Cache {
+        return Cache(application.cacheDir, 10 * 1024 * 1024)
     }
 
-    @Provides
-    @Singleton
-    internal fun providesOkHttpClient(
+    @Provides @Singleton internal fun providesOkHttpClient(
         cache: Cache,
-        isDebugEnabled: Boolean
+        @Named(NAME_DEBUG) isDebugEnabled: Boolean
     ): OkHttpClient {
-        val okHttpBuilder = OkHttpClient().newBuilder()
-        val loggingInterceptor = HttpLoggingInterceptor()
-        val level = when {
-            isDebugEnabled -> HttpLoggingInterceptor.Level.BODY
-            else -> HttpLoggingInterceptor.Level.NONE
-        }
-        loggingInterceptor.level = level
-        okHttpBuilder.addInterceptor(loggingInterceptor)
-        okHttpBuilder.cache(cache)
-        return okHttpBuilder.build()
+        return OkHttpBuilderFactory.providesOkHttpClientBuilder(cache, isDebugEnabled).build()
     }
 
-    @Provides
-    internal fun providesRetrofit(
-        @Named("base-url") baseUrl: String,
+    @Provides internal fun providesRetrofit(
+        @Named(NAME_URL) baseUrl: String,
         gson: Gson,
         okHttpClient: OkHttpClient
     ): Retrofit {
-        return Retrofit.Builder()
-                .baseUrl(baseUrl)
-                .client(okHttpClient)
-                .addCallAdapterFactory(RxErrorHandlingCallAdapterFactory.create())
-                .addConverterFactory(GsonConverterFactory.create(gson))
-                .build()
+        return RetrofitBuilderFactory.providesRetrofit(baseUrl, gson, okHttpClient).build()
     }
 
-    @Provides
-    internal fun providesNetworkResolver(context: Context): NetworkResolver {
-
-        return object : NetworkResolver {
-            override fun isConnected(): Boolean {
-                val connectivityManager =
-                        context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager?
-                val activeNetworkInfo = connectivityManager!!.activeNetworkInfo
-                return activeNetworkInfo != null && activeNetworkInfo.isConnected
-            }
-        }
-    }
-
-    @Provides
-    internal fun providesRetrofitErrorMapper() = RetrofitErrorMapper()
-
-    @Provides
-    internal fun providesNetworkLoader(
-        retrofit: Retrofit,
-        networkResolver: NetworkResolver,
-        retrofitErrorMapper: RetrofitErrorMapper,
-        scheduler: Scheduler
-    ): NetworkLoader {
-        return NetworkLoader(retrofit, networkResolver, retrofitErrorMapper, scheduler)
-    }
+    @Provides internal fun providesRetrofitErrorMapper() = RetrofitErrorMapper()
 }

@@ -1,15 +1,15 @@
 /*
- * Developed by Michail Fotiadis on 08/10/18 14:35.
- * Last modified 08/10/18 14:34.
- * Copyright (c) 2018. All rights reserved.
+ * Developed by Michail Fotiadis.
+ * Copyright (c) 2018.
+ * All rights reserved.
  */
 
 package com.michaelfotiads.xkcdreader.net.error
 
+import java.io.IOException
 import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.Retrofit
-import java.io.IOException
 
 /**
  * Modified from https://gist.github.com/koesie10/bc6c62520401cc7c858f#file-retrofitexception-java

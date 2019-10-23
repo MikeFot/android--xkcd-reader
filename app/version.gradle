@@ -1,8 +1,8 @@
 final int versionMajor = 0
 final int versionMinor = 0
-final int versionPatch = 3
+final int versionPatch = 6
 
 ext {
-    androidVersionCode = 3
+    androidVersionCode = 6
     semanticVersion = "${versionMajor}.${versionMinor}.${versionPatch}"
 }

@@ -1,39 +1,50 @@
 /*
- * Developed by Michail Fotiadis on 08/10/18 14:35.
- * Last modified 08/10/18 14:34.
- * Copyright (c) 2018. All rights reserved.
+ * Developed by Michail Fotiadis.
+ * Copyright (c) 2018.
+ * All rights reserved.
  */
 
 package com.michaelfotiads.xkcdreader.di
 
 import android.app.Application
 import android.content.Context
+import android.content.res.Resources
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.michaelfotiads.xkcdreader.BuildConfig
-import com.michaelfotiads.xkcdreader.data.DataStore
+import com.michaelfotiads.xkcdreader.ui.image.ImageLoader
 import dagger.Module
 import dagger.Provides
+import io.reactivex.Scheduler
 import io.reactivex.schedulers.Schedulers
 import javax.inject.Named
 import javax.inject.Singleton
 
+const val NAME_DEBUG = "named.is_debug_enabled"
+const val NAME_URL = "key.base.url"
+
 @Module
-class AppModule {
+internal class AppModule {
 
     @Provides
     @Singleton
-    internal fun providesContext(application: Application): Context {
-        return application
+    fun providesApplicationContext(application: Application): Context {
+        return application.applicationContext
     }
 
     @Provides
+    fun providesResources(application: Application): Resources {
+        return application.resources
+    }
+
+    @Provides
+    @Named(NAME_DEBUG)
     internal fun providesDebugFlag(): Boolean {
         return BuildConfig.DEBUG
     }
 
     @Provides
-    @Named("base-url")
+    @Named(NAME_URL)
     internal fun providesBaseUrl(): String {
         return "https://xkcd.com"
     }
@@ -44,8 +55,12 @@ class AppModule {
     }
 
     @Provides
-    internal fun providesExecutionScheduler() = Schedulers.io()
+    internal fun providesExecutionScheduler(): Scheduler {
+        return Schedulers.io()
+    }
 
     @Provides
-    internal fun providesDataStore(context: Context) = DataStore(context)
+    internal fun providesImageHlper(context: Context): ImageLoader {
+        return ImageLoader(context)
+    }
 }

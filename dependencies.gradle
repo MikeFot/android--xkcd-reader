@@ -3,12 +3,15 @@ allprojects {
         // NEVER name this block 'android'. Never name *ANY* block android
         androidVersions = [
                 minSdkVersion    : 21,
-                targetSdkVersion : 28,
-                compileSdkVersion: 28
+                targetSdkVersion : 29,
+                compileSdkVersion: 29
         ]
+        roomVersion = "2.2.0"
         daggerVersion = '2.16'
-        glideVersion = '4.8.0'
-        retrofitVersion = '2.4.0'
-
+        glideVersion = '4.10.0'
+        retrofitVersion = '2.6.2'
+        leakCanaryVersion = "1.6.3"
+        stethoVersion = "1.5.1"
+        paging_version = "2.1.0"
     }
 }
