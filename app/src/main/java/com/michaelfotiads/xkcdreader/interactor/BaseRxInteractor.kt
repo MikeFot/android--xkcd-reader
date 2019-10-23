@@ -1,4 +1,4 @@
-package com.michaelfotiads.xkcdreader.ui.fragment.comics.interactor
+package com.michaelfotiads.xkcdreader.interactor
 
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable

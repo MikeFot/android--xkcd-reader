@@ -12,6 +12,7 @@ import android.content.res.Resources
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.michaelfotiads.xkcdreader.BuildConfig
+import com.michaelfotiads.xkcdreader.ui.image.ImageLoader
 import dagger.Module
 import dagger.Provides
 import io.reactivex.Scheduler
@@ -56,5 +57,10 @@ internal class AppModule {
     @Provides
     internal fun providesExecutionScheduler(): Scheduler {
         return Schedulers.io()
+    }
+
+    @Provides
+    internal fun providesImageHlper(context: Context): ImageLoader {
+        return ImageLoader(context)
     }
 }

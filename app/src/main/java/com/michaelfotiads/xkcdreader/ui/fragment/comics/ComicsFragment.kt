@@ -7,8 +7,6 @@
 package com.michaelfotiads.xkcdreader.ui.fragment.comics
 
 import android.content.Context
-import android.graphics.PorterDuff
-import android.graphics.PorterDuffColorFilter
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.Menu
@@ -16,19 +14,21 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.michaelfotiads.xkcdreader.R
 import com.michaelfotiads.xkcdreader.ui.dialog.DialogFactory
+import com.michaelfotiads.xkcdreader.ui.fragment.comics.binder.ViewActionCallbacks
 import com.michaelfotiads.xkcdreader.ui.fragment.comics.binder.ViewBinder
 import com.michaelfotiads.xkcdreader.ui.fragment.comics.model.ComicAction
 import com.michaelfotiads.xkcdreader.ui.fragment.comics.viewmodel.ComicsViewModel
 import com.michaelfotiads.xkcdreader.ui.fragment.comics.viewmodel.ComicsViewModelFactory
+import com.michaelfotiads.xkcdreader.ui.image.ImageLoader
 import com.michaelfotiads.xkcdreader.ui.intent.IntentDispatcher
 import com.michaelfotiads.xkcdreader.ui.model.AppDialog
 import com.michaelfotiads.xkcdreader.ui.model.UiComicStrip
+import com.michaelfotiads.xkcdreader.ui.view.base.extensionTintMenuItems
 import dagger.android.support.AndroidSupportInjection
 import javax.inject.Inject
 
@@ -43,6 +43,8 @@ internal class ComicsFragment : Fragment() {
     lateinit var viewModelFactory: ComicsViewModelFactory
     @Inject
     lateinit var intentDispatcher: IntentDispatcher
+    @Inject
+    lateinit var imageHelper: ImageLoader
     @Inject
     lateinit var dialogFactory: DialogFactory
 
@@ -63,15 +65,8 @@ internal class ComicsFragment : Fragment() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.menu_main, menu)
-        val tintColor = ContextCompat.getColor(requireActivity(), R.color.white)
-        val colorFilter = PorterDuffColorFilter(tintColor, PorterDuff.Mode.SRC_ATOP)
-        for (i in 0 until menu.size()) {
-            menu.getItem(i).icon?.run {
-                mutate()
-                setColorFilter(colorFilter)
-            }
-        }
+        inflater.inflate(R.menu.menu_comics, menu)
+        menu.extensionTintMenuItems(requireContext())
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -100,10 +95,15 @@ internal class ComicsFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_comics, container, false)
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        binder.callbacks = null
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binder = ViewBinder(view)
-        binder.callbacks = object : ViewBinder.ViewActionCallbacks {
+        binder = ViewBinder(view, imageHelper)
+        binder.callbacks = object : ViewActionCallbacks {
             override fun onItemAppeared(uiComicStrip: UiComicStrip) {
                 viewModel.setCurrentItem(uiComicStrip)
             }
@@ -112,19 +112,20 @@ internal class ComicsFragment : Fragment() {
                 viewModel.clearError()
             }
 
-            override fun toggleFavourite(id: Int, favourite: Boolean) {
-                viewModel.toggleFavourite(id, favourite)
+            override fun toggleFavourite(comicStripId: Int, isFavourite: Boolean) {
+                viewModel.toggleFavourite(comicStripId, isFavourite)
             }
-
         }
         binder.initialiseCardAdapter()
         setupObservers()
     }
 
     private fun setupObservers() {
-        viewModel.pagedItems.observe(viewLifecycleOwner, Observer(binder::setAdapterContent))
-        viewModel.actionLiveData.observe(viewLifecycleOwner, Observer(this::processAction))
-        viewModel.lastLoadedIndex.observe(viewLifecycleOwner, Observer(viewModel::loadComic))
+        viewModel.run {
+            pagedItems.observe(viewLifecycleOwner, Observer(binder::setAdapterContent))
+            actionLiveData.observe(viewLifecycleOwner, Observer(this@ComicsFragment::processAction))
+            lastLoadedIndex.observe(viewLifecycleOwner, Observer(viewModel::loadComic))
+        }
     }
 
     private fun processAction(action: ComicAction) {
@@ -142,7 +143,10 @@ internal class ComicsFragment : Fragment() {
     private fun showDialog(appDialog: AppDialog?) {
         when (appDialog) {
             is AppDialog.Search -> dialogFactory.showSearch(
-                requireActivity(), appDialog.maxStripIndex, this::processSearchQuery)
+                requireActivity(),
+                appDialog.maxStripIndex,
+                viewModel::setSearchParameter
+            )
             is AppDialog.About -> dialogFactory.showAboutDialog(requireActivity())
         }
     }
@@ -150,16 +154,5 @@ internal class ComicsFragment : Fragment() {
     private fun resetAndLoadData() {
         binder.showGettingLatest()
         viewModel.refresh()
-    }
-
-    private fun processSearchQuery(query: String?, maxStripIndex: Int) {
-        if (!query.isNullOrBlank()) {
-            val stripNumber = query.toInt()
-            if (stripNumber in 1..maxStripIndex) {
-                viewModel.setSearchParameter(stripNumber)
-            } else {
-                binder.showPageNotFound()
-            }
-        }
     }
 }

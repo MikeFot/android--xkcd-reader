@@ -1,4 +1,4 @@
-package com.michaelfotiads.xkcdreader.ui.fragment.comics.interactor
+package com.michaelfotiads.xkcdreader.interactor
 
 import androidx.paging.DataSource
 import com.michaelfotiads.xkcdreader.repo.ComicsRepo

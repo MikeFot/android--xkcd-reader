@@ -11,7 +11,7 @@ import javax.inject.Inject
 
 internal class DialogFactory @Inject constructor() {
 
-    fun showSearch(activity: Activity, maxStripIndex: Int, callback: (String, Int) -> Unit) {
+    fun showSearch(activity: Activity, maxStripIndex: Int, callback: (String) -> Unit) {
         LovelyTextInputDialog(activity)
             .setTopColorRes(R.color.primary_dark)
             .setIcon(R.drawable.ic_search_black_24dp)
@@ -25,7 +25,7 @@ internal class DialogFactory @Inject constructor() {
                     R.color.secondary_text
                 )
             )
-            .setConfirmButton(android.R.string.ok) { query -> callback.invoke(query, maxStripIndex) }
+            .setConfirmButton(android.R.string.ok, callback::invoke)
             .show()
     }
 

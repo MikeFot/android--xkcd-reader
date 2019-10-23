@@ -25,7 +25,8 @@ enum class UiError(
     AUTHORISATION(R.string.ui_error_authorisation),
     BAD_REQUEST(R.string.ui_error_bad_request, R.string.ui_error_action_retry),
     PAYLOAD_TOO_LARGE(R.string.ui_error_payload_too_large),
-    NOT_PERMITTED(R.string.ui_error_no_permission);
+    NOT_PERMITTED(R.string.ui_error_no_permission),
+    SEARCH_NOT_FOUND(R.string.message_page_not_found);
 
     fun hasAction() = actionResId != 0
 }

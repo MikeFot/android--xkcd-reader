@@ -14,21 +14,16 @@ import android.widget.TextView
 import androidx.paging.PagedListAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
 import com.michaelfotiads.xkcdreader.R
+import com.michaelfotiads.xkcdreader.ui.image.ImageLoader
 import com.michaelfotiads.xkcdreader.ui.model.UiComicStrip
 import com.michaelfotiads.xkcdreader.ui.view.FavouriteImageView
 
-internal class ComicStripAdapter : PagedListAdapter<UiComicStrip, ComicStripAdapter.ViewHolder>(DiffCallback()) {
+internal class ComicStripAdapter(
+    private val imageHelper: ImageLoader
+) : PagedListAdapter<UiComicStrip, ComicStripAdapter.ViewHolder>(DiffCallback()) {
 
-    var comicActionListener: ComicActionListener? = null
-
-    interface ComicActionListener {
-
-        fun onImageClicked(uiComicStrip: UiComicStrip)
-
-        fun onItemFavouriteChanged(id: Int, isFavourite: Boolean)
-    }
+    var comicActionListener: ComicsAdapterActionListener? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
@@ -49,18 +44,15 @@ internal class ComicStripAdapter : PagedListAdapter<UiComicStrip, ComicStripAdap
                         val isFavourite = !comicStrip.isFavourite
                         comicStrip.isFavourite = isFavourite
                         setFavourite(isFavourite)
-                        comicActionListener?.onItemFavouriteChanged(
+                        comicActionListener?.onItemFavouriteToggled(
                             comicStrip.number,
                             isFavourite
                         )
                     }
                 }
-                Glide.with(comicImageView)
-                    .asDrawable()
-                    .load(comicStrip.imageLink)
-                    .into(holder.comicImageView)
-                comicImageView.setOnClickListener {
-                    comicActionListener?.onImageClicked(comicStrip)
+                imageHelper.loadGlideIntoImageView(comicStrip.imageLink, holder.comicImageView)
+                comicImageView.setOnClickListener { view ->
+                    comicActionListener?.onImageClicked(view, comicStrip.imageLink)
                 }
             }
         }
@@ -80,11 +72,11 @@ internal class ComicStripAdapter : PagedListAdapter<UiComicStrip, ComicStripAdap
         }
 
         override fun areContentsTheSame(oldItem: UiComicStrip, newItem: UiComicStrip): Boolean {
-            return oldItem.imageLink == newItem.imageLink
-                && oldItem.title == newItem.title
-                && oldItem.subtitle == newItem.subtitle
-                && oldItem.altText == newItem.altText
-                && oldItem.shareLink == newItem.shareLink
+            return oldItem.imageLink == newItem.imageLink &&
+                oldItem.title == newItem.title &&
+                oldItem.subtitle == newItem.subtitle &&
+                oldItem.altText == newItem.altText &&
+                oldItem.shareLink == newItem.shareLink
         }
     }
 }

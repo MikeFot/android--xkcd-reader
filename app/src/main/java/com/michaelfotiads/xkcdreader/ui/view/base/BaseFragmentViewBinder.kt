@@ -1,4 +1,4 @@
-package com.michaelfotiads.xkcdreader.ui.base
+package com.michaelfotiads.xkcdreader.ui.view.base
 
 import android.content.Context
 import android.view.View

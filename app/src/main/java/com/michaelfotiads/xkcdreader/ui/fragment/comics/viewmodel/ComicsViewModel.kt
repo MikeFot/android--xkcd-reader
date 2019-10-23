@@ -12,13 +12,14 @@ import androidx.lifecycle.ViewModel
 import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
 import com.michaelfotiads.xkcdreader.data.prefs.UserDataStore
+import com.michaelfotiads.xkcdreader.interactor.BaseRxInteractor
+import com.michaelfotiads.xkcdreader.interactor.LoadComicPagesInteractor
+import com.michaelfotiads.xkcdreader.interactor.LoadSpecificComicInteractor
+import com.michaelfotiads.xkcdreader.interactor.ResetPagesInteractor
+import com.michaelfotiads.xkcdreader.interactor.SearchProcessInteractor
+import com.michaelfotiads.xkcdreader.interactor.ToggleFavouriteInteractor
 import com.michaelfotiads.xkcdreader.ui.config.PagesConfigProvider
 import com.michaelfotiads.xkcdreader.ui.error.UiError
-import com.michaelfotiads.xkcdreader.ui.fragment.comics.interactor.BaseRxInteractor
-import com.michaelfotiads.xkcdreader.ui.fragment.comics.interactor.LoadComicPagesInteractor
-import com.michaelfotiads.xkcdreader.ui.fragment.comics.interactor.LoadSpecificComicInteractor
-import com.michaelfotiads.xkcdreader.ui.fragment.comics.interactor.ResetPagesInteractor
-import com.michaelfotiads.xkcdreader.ui.fragment.comics.interactor.ToggleFavouriteInteractor
 import com.michaelfotiads.xkcdreader.ui.fragment.comics.model.ComicAction
 import com.michaelfotiads.xkcdreader.ui.model.AppDialog
 import com.michaelfotiads.xkcdreader.ui.model.UiComicStrip
@@ -28,6 +29,7 @@ class ComicsViewModel(
     private val loadSpecificComicInteractor: LoadSpecificComicInteractor,
     private val toggleFavouriteInteractor: ToggleFavouriteInteractor,
     private val resetPagesInteractor: ResetPagesInteractor,
+    private val searchProcessInteractor: SearchProcessInteractor,
     pagesConfigProvider: PagesConfigProvider,
     private val dataStore: UserDataStore
 ) : ViewModel() {
@@ -83,13 +85,17 @@ class ComicsViewModel(
         }
     }
 
-    fun setSearchParameter(comicStripId: Int) {
-        searchQueryId = comicStripId
-        refresh()
+    fun setSearchParameter(query: String?) {
+        val stripNumber = searchProcessInteractor.process(query)
+        if (stripNumber != null) {
+            searchQueryId = stripNumber
+            refresh()
+        } else {
+            actionLiveData.postValue(ComicAction.ShowError(UiError.SEARCH_NOT_FOUND))
+        }
     }
 
     fun refresh() {
-        loadSpecificComicInteractor.clear()
         resetPagesInteractor.resetData()
     }
 
@@ -102,12 +108,7 @@ class ComicsViewModel(
     }
 
     fun clearError() {
-        actionLiveData.postValue(null)
-    }
-
-    override fun onCleared() {
-        interactors.forEach(BaseRxInteractor::clear)
-        super.onCleared()
+        actionLiveData.postValue(ComicAction.Idle)
     }
 
     fun toggleFavourite(comicStripId: Int, isFavourite: Boolean) {
@@ -122,5 +123,10 @@ class ComicsViewModel(
 
     fun setCurrentItem(uiComicStrip: UiComicStrip?) {
         this.currentItem = uiComicStrip
+    }
+
+    override fun onCleared() {
+        interactors.forEach(BaseRxInteractor::clear)
+        super.onCleared()
     }
 }

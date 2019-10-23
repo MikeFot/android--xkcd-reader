@@ -1,4 +1,4 @@
-package com.michaelfotiads.xkcdreader.ui.fragment.comics.interactor
+package com.michaelfotiads.xkcdreader.interactor
 
 import com.michaelfotiads.xkcdreader.data.db.entity.ComicEntity
 import com.michaelfotiads.xkcdreader.data.prefs.UserDataStore
