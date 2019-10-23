@@ -17,7 +17,6 @@ import com.yuyakaido.android.cardstackview.CardStackView
 import com.yuyakaido.android.cardstackview.Direction
 import com.yuyakaido.android.cardstackview.StackFrom
 import es.dmoral.toasty.Toasty
-import timber.log.Timber
 
 private const val TRANSLATION_INTERVAL = 8.0f
 private const val INDEX_PROGRESS = 0
@@ -65,7 +64,6 @@ internal class ViewBinder(
         override fun onCardCanceled() {}
 
         override fun onCardAppeared(view: View?, position: Int) {
-            Timber.d("On Card Appeared $position")
             comicStripAdapter.currentList?.get(position)?.let { comicStrip ->
                 callbacks?.onItemAppeared(comicStrip)
             }
@@ -94,6 +92,9 @@ internal class ViewBinder(
     fun setAdapterContent(pagedList: PagedList<UiComicStrip>) {
         showContent()
         comicStripAdapter.submitList(pagedList)
+        if (pagedList.size == 1) {
+            callbacks?.onItemAppeared(pagedList.first()!!)
+        }
     }
 
     fun showContent() {
