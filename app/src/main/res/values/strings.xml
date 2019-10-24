@@ -45,4 +45,6 @@
         \nNot endorsed by or affiliated with XKCD.
         \nAll rights reserved 2018, 2019"</string>
     <string name="ct_icon_favourite">Favourite Button</string>
+    <string name="ct_favourite_background">Background Image</string>
+    <string name="favourites_empty">Comic strips you add to favourites will appear on this page.</string>
 </resources>

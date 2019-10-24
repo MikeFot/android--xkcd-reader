@@ -21,7 +21,6 @@ class SearchProcessInteractor @Inject constructor(
             } catch (exception: NumberFormatException) {
                 null
             }
-
         }
     }
 }
