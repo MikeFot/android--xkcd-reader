@@ -1,6 +1,7 @@
 package com.michaelfotiads.xkcdreader.ui.fragment.favourites.binder
 
 import android.view.View
+import android.widget.ViewFlipper
 import androidx.paging.PagedList
 import androidx.recyclerview.widget.RecyclerView
 import com.michaelfotiads.xkcdreader.R
@@ -11,12 +12,17 @@ import com.michaelfotiads.xkcdreader.ui.model.UiComicStrip
 import com.michaelfotiads.xkcdreader.ui.view.base.BaseFragmentViewBinder
 import com.michaelfotiads.xkcdreader.ui.view.base.BaseFragmentViewHolder
 
+private const val INDEX_EMPTY = 0
+private const val INDEX_CONTENT = 1
+private const val ITEMS_TO_PRELOAD = 10
+
 internal class FavouritesViewBinder(
     view: View,
     private val imageHelper: ImageLoader
 ) : BaseFragmentViewBinder<FavouritesViewBinder.ViewHolder>(view) {
 
     class ViewHolder(view: View) : BaseFragmentViewHolder(view) {
+        val viewFlipper: ViewFlipper = view.findViewById(R.id.favourites_flipper)
         val recyclerView: RecyclerView = view.findViewById(R.id.favourites_recycler_view)
     }
 
@@ -29,6 +35,9 @@ internal class FavouritesViewBinder(
     var callbacks: ViewActionCallbacks? = null
 
     fun initialiseAdapter() {
+
+        viewHolder.viewFlipper.displayedChild = INDEX_EMPTY
+
         favouritesAdapter.favouritesActionListener = object : FavouritesAdapterActionListener {
             override fun onImageClicked(view: View, imageLink: String) {
                 imageHelper.showFrescoImage(view, imageLink, R.dimen.margin_16dp)
@@ -43,11 +52,14 @@ internal class FavouritesViewBinder(
             imageHelper.generateRecyclerViewPreLoader(
                 viewHolder.rootView,
                 favouritesAdapter,
-                10)
+                ITEMS_TO_PRELOAD)
         )
     }
 
     fun setItems(pagedList: PagedList<UiComicStrip>) {
         favouritesAdapter.submitList(pagedList)
+        if (pagedList.isNotEmpty()) {
+            viewHolder.viewFlipper.displayedChild = INDEX_CONTENT
+        }
     }
 }

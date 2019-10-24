@@ -28,8 +28,8 @@ internal class ViewBinder(
 ) : BaseFragmentViewBinder<ViewBinder.ViewHolder>(view) {
 
     class ViewHolder(view: View) : BaseFragmentViewHolder(view) {
-        val viewFlipper: ViewFlipper = view.findViewById(R.id.view_flipper)
-        val cardStackView: CardStackView = view.findViewById(R.id.card_stack_view)
+        val viewFlipper: ViewFlipper = view.findViewById(R.id.comics_view_flipper)
+        val cardStackView: CardStackView = view.findViewById(R.id.comics_card_stack_view)
     }
 
     override val viewHolder = ViewHolder(view)

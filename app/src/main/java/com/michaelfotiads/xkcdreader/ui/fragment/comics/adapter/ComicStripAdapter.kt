@@ -72,11 +72,11 @@ internal class ComicStripAdapter(
         }
 
         override fun areContentsTheSame(oldItem: UiComicStrip, newItem: UiComicStrip): Boolean {
-            return oldItem.imageLink == newItem.imageLink &&
-                oldItem.title == newItem.title &&
+            return oldItem.title == newItem.title &&
                 oldItem.subtitle == newItem.subtitle &&
-                oldItem.altText == newItem.altText &&
-                oldItem.shareLink == newItem.shareLink
+                oldItem.imageLink == newItem.imageLink &&
+                oldItem.shareLink == newItem.shareLink &&
+                oldItem.altText == newItem.altText
         }
     }
 }
