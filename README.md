@@ -19,7 +19,7 @@ Fan made [XKCD](https://xkcd.com/) comic reader using the official [JSON interfa
 
 ![swipe](media/swipe.gif "Swiping images")
 
-![favourites](media/favourite.gif "Adding to Favourites")
+![favourites](media/favourites.gif "Adding to Favourites")
 
 ![search](media/search.gif "Searching for a comic")
 
