@@ -2,12 +2,17 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/action_comics"
+        android:id="@+id/action_cards"
         android:icon="@drawable/ic_library_books_black_24dp"
-        android:title="@string/menu_bar_comics"/>
+        android:title="@string/menu_bar_cards" />
+
+    <item
+        android:id="@+id/action_comics"
+        android:icon="@drawable/ic_view_array_black_24dp"
+        android:title="@string/menu_bar_comics" />
     <item
         android:id="@+id/action_favourites"
         android:icon="@drawable/ic_favorite_white_24dp"
-        android:title="@string/menu_bar_favourites"/>
+        android:title="@string/menu_bar_favourites" />
 
 </menu>

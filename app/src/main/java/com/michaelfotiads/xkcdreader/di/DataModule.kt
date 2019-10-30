@@ -9,8 +9,8 @@ package com.michaelfotiads.xkcdreader.di
 import android.app.Application
 import androidx.room.Room
 import com.michaelfotiads.xkcdreader.data.db.ComicsDatabase
+import com.michaelfotiads.xkcdreader.data.db.dao.CardPagesDao
 import com.michaelfotiads.xkcdreader.data.db.dao.ComicsDao
-import com.michaelfotiads.xkcdreader.data.db.dao.PagesDao
 import com.michaelfotiads.xkcdreader.data.prefs.UserDataStore
 import dagger.Module
 import dagger.Provides
@@ -45,7 +45,7 @@ class DataModule {
     }
 
     @Provides
-    internal fun providesPagesDao(database: ComicsDatabase): PagesDao {
-        return database.pagesDao()
+    internal fun providesCardPagesDao(database: ComicsDatabase): CardPagesDao {
+        return database.cardPagesDao()
     }
 }

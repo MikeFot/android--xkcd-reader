@@ -1,4 +1,4 @@
-package com.michaelfotiads.xkcdreader.ui.fragment.comics.binder
+package com.michaelfotiads.xkcdreader.ui.fragment.comics.cards.binder
 
 import com.michaelfotiads.xkcdreader.ui.model.UiComicStrip
 

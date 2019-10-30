@@ -1,10 +1,4 @@
-/*
- * Developed by Michail Fotiadis.
- * Copyright (c) 2019.
- * All rights reserved.
- */
-
-package com.michaelfotiads.xkcdreader.ui.fragment.comics
+package com.michaelfotiads.xkcdreader.ui.fragment.comics.comics
 
 import android.content.Context
 import android.os.Bundle
@@ -19,15 +13,14 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.michaelfotiads.xkcdreader.R
 import com.michaelfotiads.xkcdreader.ui.dialog.DialogFactory
-import com.michaelfotiads.xkcdreader.ui.fragment.comics.binder.ViewActionCallbacks
-import com.michaelfotiads.xkcdreader.ui.fragment.comics.binder.ViewBinder
+import com.michaelfotiads.xkcdreader.ui.fragment.comics.comics.binder.ComicsViewBinder
+import com.michaelfotiads.xkcdreader.ui.fragment.comics.comics.binder.ViewActionCallbacks
+import com.michaelfotiads.xkcdreader.ui.fragment.comics.comics.viewmodel.ComicsViewModel
+import com.michaelfotiads.xkcdreader.ui.fragment.comics.comics.viewmodel.ComicsViewModelFactory
 import com.michaelfotiads.xkcdreader.ui.fragment.comics.model.ComicAction
-import com.michaelfotiads.xkcdreader.ui.fragment.comics.viewmodel.ComicsViewModel
-import com.michaelfotiads.xkcdreader.ui.fragment.comics.viewmodel.ComicsViewModelFactory
 import com.michaelfotiads.xkcdreader.ui.image.ImageLoader
 import com.michaelfotiads.xkcdreader.ui.intent.IntentDispatcher
 import com.michaelfotiads.xkcdreader.ui.model.AppDialog
-import com.michaelfotiads.xkcdreader.ui.model.UiComicStrip
 import com.michaelfotiads.xkcdreader.ui.view.base.extensionTintMenuItems
 import dagger.android.support.AndroidSupportInjection
 import javax.inject.Inject
@@ -52,7 +45,7 @@ internal class ComicsFragment : Fragment() {
         ViewModelProviders.of(this, viewModelFactory).get(ComicsViewModel::class.java)
     }
 
-    private lateinit var binder: ViewBinder
+    private lateinit var binder: ComicsViewBinder
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -75,24 +68,22 @@ internal class ComicsFragment : Fragment() {
                 resetAndLoadData()
                 true
             }
-            R.id.menu_item_search -> {
-                viewModel.showSearch()
-                true
-            }
             R.id.menu_item_about -> {
                 viewModel.showAboutDialog()
-                true
-            }
-            R.id.menu_item_share -> {
-                viewModel.shareCurrentItem()
                 true
             }
             else -> super.onOptionsItemSelected(item)
         }
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_comics, container, false)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        val view = inflater.inflate(R.layout.fragment_comics, container, false)
+        binder = ComicsViewBinder(view, imageHelper)
+        return view
     }
 
     override fun onDestroyView() {
@@ -102,12 +93,7 @@ internal class ComicsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binder = ViewBinder(view, imageHelper)
         binder.callbacks = object : ViewActionCallbacks {
-            override fun onItemAppeared(uiComicStrip: UiComicStrip) {
-                viewModel.setCurrentItem(uiComicStrip)
-            }
-
             override fun onErrorShown() {
                 viewModel.clearError()
             }
@@ -116,8 +102,9 @@ internal class ComicsFragment : Fragment() {
                 viewModel.toggleFavourite(comicStripId, isFavourite)
             }
         }
-        binder.initialiseCardAdapter()
+        binder.initialiseRecyclerAdapter()
         setupObservers()
+        viewModel.loadComic(0)
     }
 
     private fun setupObservers() {
@@ -133,8 +120,7 @@ internal class ComicsFragment : Fragment() {
             is ComicAction.ShowContent -> binder.showContent()
             is ComicAction.ShowError -> binder.onError(action.uiError)
             is ComicAction.ShowDialog -> showDialog(action.appDialog)
-            is ComicAction.Share -> intentDispatcher.share(requireActivity(), action.uiComicStrip)
-            is ComicAction.Idle -> {
+            else -> {
                 // NOOP
             }
         }
@@ -142,17 +128,15 @@ internal class ComicsFragment : Fragment() {
 
     private fun showDialog(appDialog: AppDialog?) {
         when (appDialog) {
-            is AppDialog.Search -> dialogFactory.showSearch(
-                requireActivity(),
-                appDialog.maxStripIndex,
-                viewModel::setSearchParameter
-            )
             is AppDialog.About -> dialogFactory.showAboutDialog(requireActivity())
+            else -> {
+                // NOOP
+            }
         }
     }
 
     private fun resetAndLoadData() {
-        binder.showGettingLatest()
+        binder.resetPosition()
         viewModel.refresh()
     }
 }

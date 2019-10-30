@@ -2,7 +2,7 @@ package com.michaelfotiads.xkcdreader.data.db.entity
 
 import androidx.room.Embedded
 
-data class PageWithComic(
-    @Embedded var pageEntity: PageEntity,
+data class CardPageWithComic(
+    @Embedded var pageEntity: CardPageEntity,
     @Embedded var comicEntity: ComicEntity
 )

@@ -1,12 +1,12 @@
-package com.michaelfotiads.xkcdreader.ui.fragment.comics.binder
+package com.michaelfotiads.xkcdreader.ui.fragment.comics.cards.binder
 
 import android.view.View
 import android.widget.ViewFlipper
 import androidx.paging.PagedList
 import com.michaelfotiads.xkcdreader.R
 import com.michaelfotiads.xkcdreader.ui.error.UiError
-import com.michaelfotiads.xkcdreader.ui.fragment.comics.adapter.ComicStripAdapter
-import com.michaelfotiads.xkcdreader.ui.fragment.comics.adapter.ComicsAdapterActionListener
+import com.michaelfotiads.xkcdreader.ui.fragment.comics.cards.adapter.CardsAdapter
+import com.michaelfotiads.xkcdreader.ui.fragment.comics.cards.adapter.CardsAdapterActionListener
 import com.michaelfotiads.xkcdreader.ui.image.ImageLoader
 import com.michaelfotiads.xkcdreader.ui.model.UiComicStrip
 import com.michaelfotiads.xkcdreader.ui.view.base.BaseFragmentViewBinder
@@ -22,20 +22,20 @@ private const val TRANSLATION_INTERVAL = 8.0f
 private const val INDEX_PROGRESS = 0
 private const val INDEX_CONTENT = 1
 
-internal class ViewBinder(
+internal class CardsViewBinder(
     view: View,
     private val imageHelper: ImageLoader
-) : BaseFragmentViewBinder<ViewBinder.ViewHolder>(view) {
+) : BaseFragmentViewBinder<CardsViewBinder.ViewHolder>(view) {
 
     class ViewHolder(view: View) : BaseFragmentViewHolder(view) {
-        val viewFlipper: ViewFlipper = view.findViewById(R.id.comics_view_flipper)
-        val cardStackView: CardStackView = view.findViewById(R.id.comics_card_stack_view)
+        val viewFlipper: ViewFlipper = view.findViewById(R.id.cards_view_flipper)
+        val cardStackView: CardStackView = view.findViewById(R.id.cards_card_stack_view)
     }
 
     override val viewHolder = ViewHolder(view)
 
-    private val comicStripAdapter: ComicStripAdapter by lazy {
-        ComicStripAdapter(imageHelper)
+    private val comicStripAdapter: CardsAdapter by lazy {
+        CardsAdapter(imageHelper)
     }
     private val comicStripListener: CardStackListener by lazy {
         ComicsCardStackListener()
@@ -74,7 +74,7 @@ internal class ViewBinder(
 
     fun initialiseCardAdapter() {
         showProgress()
-        comicStripAdapter.comicActionListener = object : ComicsAdapterActionListener {
+        comicStripAdapter.comicActionListener = object : CardsAdapterActionListener {
             override fun onImageClicked(view: View, imageLink: String) {
                 imageHelper.showFrescoImage(view, imageLink, R.dimen.margin_16dp)
             }

@@ -8,10 +8,10 @@ package com.michaelfotiads.xkcdreader.repo
 
 import androidx.lifecycle.LiveData
 import androidx.paging.DataSource
+import com.michaelfotiads.xkcdreader.data.db.dao.CardPagesDao
 import com.michaelfotiads.xkcdreader.data.db.dao.ComicsDao
-import com.michaelfotiads.xkcdreader.data.db.dao.PagesDao
+import com.michaelfotiads.xkcdreader.data.db.entity.CardPageEntity
 import com.michaelfotiads.xkcdreader.data.db.entity.ComicEntity
-import com.michaelfotiads.xkcdreader.data.db.entity.PageEntity
 import com.michaelfotiads.xkcdreader.net.api.ComicApi
 import com.michaelfotiads.xkcdreader.net.api.model.ComicStrip
 import com.michaelfotiads.xkcdreader.repo.error.mapper.RetrofitErrorMapper
@@ -23,7 +23,7 @@ import retrofit2.Retrofit
 class ComicsRepo(
     retrofit: Retrofit,
     private val comicsDao: ComicsDao,
-    private val pagesDao: PagesDao,
+    private val cardPagesDao: CardPagesDao,
     private val comicsMapper: ComicsMapper,
     private val errorMapper: RetrofitErrorMapper
 ) {
@@ -49,7 +49,7 @@ class ComicsRepo(
             .flatMap { optional ->
                 if (optional.isPresent) {
                     val entity = optional.get()!!
-                    pagesDao.upsert(PageEntity(entity.num))
+                    cardPagesDao.upsert(CardPageEntity(entity.num))
                     Single.just(RepoResult(entity))
                 } else {
                     comicApi.getForId(comicId = comicId.toString())
@@ -77,18 +77,22 @@ class ComicsRepo(
         return Optional.ofNullable(comicsDao.getForId(comicStripId))
     }
 
-    fun getPagedComics(): DataSource.Factory<Int, ComicEntity> {
-        return pagesDao.getComicsPaged().map { pageWithComic ->
+    fun getCardPagedComics(): DataSource.Factory<Int, ComicEntity> {
+        return cardPagesDao.getComicsPaged().map { pageWithComic ->
             pageWithComic.comicEntity
         }
+    }
+
+    fun getComicPagedComics(): DataSource.Factory<Int, ComicEntity> {
+        return comicsDao.getComicsPaged()
     }
 
     fun getPagedFavourites(): DataSource.Factory<Int, ComicEntity> {
         return comicsDao.getFavouritesPaged()
     }
 
-    fun deletePageData() {
-        pagesDao.deleteAll()
+    fun deleteCardPageData() {
+        cardPagesDao.deleteAll()
     }
 
     private fun upsertComicStripFromNet(comicStrip: ComicStrip): ComicEntity {
@@ -97,7 +101,7 @@ class ComicsRepo(
             entity.isFavourite = existingEntity.isFavourite
         }
         comicsDao.upsert(entity)
-        pagesDao.upsert(PageEntity(entity.num))
+        cardPagesDao.upsert(CardPageEntity(entity.num))
         return entity
     }
 }
