@@ -6,8 +6,8 @@
 
 package com.michaelfotiads.xkcdreader.di
 
+import com.michaelfotiads.xkcdreader.data.db.dao.CardPagesDao
 import com.michaelfotiads.xkcdreader.data.db.dao.ComicsDao
-import com.michaelfotiads.xkcdreader.data.db.dao.PagesDao
 import com.michaelfotiads.xkcdreader.repo.ComicsRepo
 import com.michaelfotiads.xkcdreader.repo.error.mapper.RetrofitErrorMapper
 import com.michaelfotiads.xkcdreader.repo.mapper.ComicsMapper
@@ -27,14 +27,14 @@ class LoaderModule {
     internal fun providesLoader(
         retrofit: Retrofit,
         comicsDao: ComicsDao,
-        pagesDao: PagesDao,
+        cardPagesDao: CardPagesDao,
         comicMapper: ComicsMapper,
         retrofitErrorMapper: RetrofitErrorMapper
     ): ComicsRepo {
         return ComicsRepo(
             retrofit,
             comicsDao,
-            pagesDao,
+            cardPagesDao,
             comicMapper,
             retrofitErrorMapper
         )

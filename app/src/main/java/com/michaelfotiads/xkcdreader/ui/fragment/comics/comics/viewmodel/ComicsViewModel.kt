@@ -4,19 +4,16 @@
  * All rights reserved.
  */
 
-package com.michaelfotiads.xkcdreader.ui.fragment.comics.viewmodel
+package com.michaelfotiads.xkcdreader.ui.fragment.comics.comics.viewmodel
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.paging.LivePagedListBuilder
 import androidx.paging.PagedList
-import com.michaelfotiads.xkcdreader.data.prefs.UserDataStore
 import com.michaelfotiads.xkcdreader.interactor.BaseRxInteractor
 import com.michaelfotiads.xkcdreader.interactor.LoadComicPagesInteractor
 import com.michaelfotiads.xkcdreader.interactor.LoadSpecificComicInteractor
-import com.michaelfotiads.xkcdreader.interactor.ResetPagesInteractor
-import com.michaelfotiads.xkcdreader.interactor.SearchProcessInteractor
 import com.michaelfotiads.xkcdreader.interactor.ToggleFavouriteInteractor
 import com.michaelfotiads.xkcdreader.ui.config.PagesConfigProvider
 import com.michaelfotiads.xkcdreader.ui.error.UiError
@@ -28,30 +25,18 @@ class ComicsViewModel(
     loadComicPagesInteractor: LoadComicPagesInteractor,
     private val loadSpecificComicInteractor: LoadSpecificComicInteractor,
     private val toggleFavouriteInteractor: ToggleFavouriteInteractor,
-    private val resetPagesInteractor: ResetPagesInteractor,
-    private val searchProcessInteractor: SearchProcessInteractor,
-    pagesConfigProvider: PagesConfigProvider,
-    private val dataStore: UserDataStore
+    pagesConfigProvider: PagesConfigProvider
 ) : ViewModel() {
     val pagedItems: LiveData<PagedList<UiComicStrip>>
     val actionLiveData = MutableLiveData<ComicAction>().apply { value = ComicAction.Idle }
     val lastLoadedIndex = MutableLiveData<Int?>()
 
     private val interactors = listOf(
-        loadSpecificComicInteractor, toggleFavouriteInteractor, resetPagesInteractor
+        loadSpecificComicInteractor, toggleFavouriteInteractor
     )
-    private var searchQueryId = 0
-    private var currentItem: UiComicStrip? = null
 
     init {
-        resetPagesInteractor.resetData()
         class UiComicStripBoundaryCallback : PagedList.BoundaryCallback<UiComicStrip>() {
-            override fun onZeroItemsLoaded() {
-                super.onZeroItemsLoaded()
-                lastLoadedIndex.postValue(searchQueryId)
-                searchQueryId = 0
-            }
-
             override fun onItemAtEndLoaded(itemAtEnd: UiComicStrip) {
                 super.onItemAtEndLoaded(itemAtEnd)
                 if (itemAtEnd.number != 1) {
@@ -62,6 +47,7 @@ class ComicsViewModel(
         pagedItems = LivePagedListBuilder(loadComicPagesInteractor.getPages(), pagesConfigProvider.pagesCount)
             .setBoundaryCallback(UiComicStripBoundaryCallback())
             .build()
+        loadComic(0)
     }
 
     fun loadComic(comicStripId: Int?) {
@@ -77,30 +63,8 @@ class ComicsViewModel(
             })
     }
 
-    fun showSearch() {
-        dataStore.maxStripIndex.let { index ->
-            if (index > 0) {
-                showSearchDialog(index)
-            }
-        }
-    }
-
-    fun setSearchParameter(query: String?) {
-        val stripNumber = searchProcessInteractor.process(query)
-        if (stripNumber != null) {
-            searchQueryId = stripNumber
-            refresh()
-        } else {
-            actionLiveData.postValue(ComicAction.ShowError(UiError.SEARCH_NOT_FOUND))
-        }
-    }
-
     fun refresh() {
-        resetPagesInteractor.resetData()
-    }
-
-    private fun showSearchDialog(comicStripId: Int) {
-        actionLiveData.postValue(ComicAction.ShowDialog(AppDialog.Search(comicStripId)))
+        loadComic(0)
     }
 
     fun showAboutDialog() {
@@ -113,16 +77,6 @@ class ComicsViewModel(
 
     fun toggleFavourite(comicStripId: Int, isFavourite: Boolean) {
         toggleFavouriteInteractor.toggleFavourite(comicStripId, isFavourite)
-    }
-
-    fun shareCurrentItem() {
-        currentItem?.run {
-            actionLiveData.postValue(ComicAction.Share(this))
-        }
-    }
-
-    fun setCurrentItem(uiComicStrip: UiComicStrip?) {
-        this.currentItem = uiComicStrip
     }
 
     override fun onCleared() {

@@ -4,24 +4,24 @@
  * All rights reserved.
  */
 
-package com.michaelfotiads.xkcdreader.ui.fragment.comics.viewmodel
+package com.michaelfotiads.xkcdreader.ui.fragment.comics.cards.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.michaelfotiads.xkcdreader.data.prefs.UserDataStore
-import com.michaelfotiads.xkcdreader.interactor.LoadComicPagesInteractor
+import com.michaelfotiads.xkcdreader.interactor.LoadCardPagesInteractor
 import com.michaelfotiads.xkcdreader.interactor.LoadSpecificComicInteractor
-import com.michaelfotiads.xkcdreader.interactor.ResetPagesInteractor
+import com.michaelfotiads.xkcdreader.interactor.ResetCardPagesInteractor
 import com.michaelfotiads.xkcdreader.interactor.SearchProcessInteractor
 import com.michaelfotiads.xkcdreader.interactor.ToggleFavouriteInteractor
 import com.michaelfotiads.xkcdreader.ui.config.PagesConfigProvider
 import javax.inject.Inject
 
-class ComicsViewModelFactory @Inject constructor(
-    private val loadComicPagesInteractor: LoadComicPagesInteractor,
+class CardsViewModelFactory @Inject constructor(
+    private val loadCardPagesInteractor: LoadCardPagesInteractor,
     private val loadSpecificComicInteractor: LoadSpecificComicInteractor,
     private val toggleFavouriteInteractor: ToggleFavouriteInteractor,
-    private val clearDataInteractor: ResetPagesInteractor,
+    private val resetCardPagesInteractor: ResetCardPagesInteractor,
     private val searchProcessInteractor: SearchProcessInteractor,
     private val pagesConfigProvider: PagesConfigProvider,
     private val dataStore: UserDataStore
@@ -29,11 +29,11 @@ class ComicsViewModelFactory @Inject constructor(
 
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
         @Suppress("UNCHECKED_CAST")
-        return ComicsViewModel(
-            loadComicPagesInteractor,
+        return CardsViewModel(
+            loadCardPagesInteractor,
             loadSpecificComicInteractor,
             toggleFavouriteInteractor,
-            clearDataInteractor,
+            resetCardPagesInteractor,
             searchProcessInteractor,
             pagesConfigProvider,
             dataStore) as T

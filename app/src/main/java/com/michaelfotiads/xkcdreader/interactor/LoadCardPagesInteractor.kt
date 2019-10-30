@@ -8,7 +8,7 @@ import com.michaelfotiads.xkcdreader.ui.model.UiComicStripMapper
 import io.reactivex.Single
 import javax.inject.Inject
 
-class LoadComicPagesInteractor @Inject constructor(
+class LoadCardPagesInteractor @Inject constructor(
     private val comicsRepo: ComicsRepo,
     private val uiComicStripMapper: UiComicStripMapper,
     private val executionThreads: ExecutionThreads
@@ -16,7 +16,7 @@ class LoadComicPagesInteractor @Inject constructor(
 
     fun getPages(): DataSource.Factory<Int, UiComicStrip> {
         return Single.fromCallable {
-            comicsRepo.getComicPagedComics()
+            comicsRepo.getCardPagedComics()
         }
             .doOnSubscribe(this::addDisposable)
             .subscribeOn(executionThreads.jobExecutionThread)

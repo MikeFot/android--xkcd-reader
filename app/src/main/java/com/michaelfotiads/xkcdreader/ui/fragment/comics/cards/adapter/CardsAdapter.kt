@@ -4,7 +4,7 @@
  * All rights reserved.
  */
 
-package com.michaelfotiads.xkcdreader.ui.fragment.comics.adapter
+package com.michaelfotiads.xkcdreader.ui.fragment.comics.cards.adapter
 
 import android.view.LayoutInflater
 import android.view.View
@@ -19,11 +19,11 @@ import com.michaelfotiads.xkcdreader.ui.image.ImageLoader
 import com.michaelfotiads.xkcdreader.ui.model.UiComicStrip
 import com.michaelfotiads.xkcdreader.ui.view.FavouriteImageView
 
-internal class ComicStripAdapter(
+internal class CardsAdapter(
     private val imageHelper: ImageLoader
-) : PagedListAdapter<UiComicStrip, ComicStripAdapter.ViewHolder>(DiffCallback()) {
+) : PagedListAdapter<UiComicStrip, CardsAdapter.ViewHolder>(DiffCallback()) {
 
-    var comicActionListener: ComicsAdapterActionListener? = null
+    var comicActionListener: CardsAdapterActionListener? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)

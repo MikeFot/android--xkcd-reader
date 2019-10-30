@@ -5,7 +5,7 @@ import com.michaelfotiads.xkcdreader.scheduler.ExecutionThreads
 import io.reactivex.Completable
 import javax.inject.Inject
 
-class ResetPagesInteractor @Inject constructor(
+class ResetCardPagesInteractor @Inject constructor(
     private val loader: ComicsRepo,
     private val executionThreads: ExecutionThreads
 ) : BaseRxInteractor() {
@@ -13,7 +13,7 @@ class ResetPagesInteractor @Inject constructor(
     fun resetData() {
         addDisposable(
             Completable.fromAction {
-                loader.deletePageData()
+                loader.deleteCardPageData()
             }
                 .subscribeOn(executionThreads.jobExecutionThread)
                 .subscribe()

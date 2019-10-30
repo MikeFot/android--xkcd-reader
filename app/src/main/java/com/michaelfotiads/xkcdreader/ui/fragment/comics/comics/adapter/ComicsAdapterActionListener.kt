@@ -1,4 +1,4 @@
-package com.michaelfotiads.xkcdreader.ui.fragment.comics.adapter
+package com.michaelfotiads.xkcdreader.ui.fragment.comics.comics.adapter
 
 import android.view.View
 

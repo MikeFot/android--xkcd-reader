@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ViewFlipper xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/comics_view_flipper"
+    android:id="@+id/cards_view_flipper"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -13,14 +11,11 @@
         android:layout_gravity="center"
         android:indeterminate="true" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/comics_recycler_view"
+    <com.yuyakaido.android.cardstackview.CardStackView
+        android:id="@+id/cards_card_stack_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="horizontal"
-        android:scrollbars="horizontal"
-        android:scrollbarAlwaysDrawHorizontalTrack="true"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        tools:listitem="@layout/list_item_comic_strip" />
+        android:background="@color/screen_background"
+        android:padding="@dimen/padding_8dp" />
 
 </ViewFlipper>
